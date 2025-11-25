@@ -3,213 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>لیدربورد بازی</title>
-  <meta name="description" content="رتبه‌بندی برترین بازیکنان"/>
+  <title>لیدربورد بازی - ۵۰ کاربر برتر</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
-    :root { --gold: #fbbf24; --silver: #94a3b8; --bronze: #f97316; }
-    body { background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); }
-    .card { transition: all 0.4s; }
-    .card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-    .rank-1 { background: linear-gradient(135deg, #fef08a 0%, #facc15 100%) !important; color: #1f2937; }
-    .rank-2 { background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%) !important; color: #1f2937; }
-    .rank-3 { background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%) !important; color: #1f2937; }
-    .trophy { filter: drop-shadow(0 0 20px rgba(251,191,36,0.8)); }
-    .pulse { animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
+    :root {
+      --primary: #6366f1;
+      --gold: #fbbf24;
+      --silver: #94a3b8;
+      --bronze: #f97316;
+    }
+    body {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      font-family: 'Tahoma', sans-serif;
+    }
+    .card {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      transition: all 0.3s ease;
+    }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4); }
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1f2937; }
+    .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); }
+    .rank-3 { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+    .refresh-btn {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+    }
+    .refresh-btn:hover {
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+      transform: translateY(-3px);
+    }
   </style>
 </head>
-<body class="min-h-screen text-white">
-
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
+<body class="min-h-screen py-8 px-4">
+  <div class="container mx-auto max-w-4xl">
 
     <!-- هدر -->
-    <header class="text-center mb-12">
-      <h1 class="text-5xl md:text-7xl font-extrabold mb-4">
-        <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600">
-          لیدربورد برترین‌ها
-        </span>
+    <div class="text-center mb-10">
+      <h1 class="text-5xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+        لیدربورد بازی
       </h1>
-      <p class="text-xl text-gray-300">بهترین بازیکنان هفته جاری</p>
-      <div class="mt-6 flex justify-center items-center gap-8 text-lg">
-        <div class="flex items-center gap-3">
-          <i class="fas fa-sync text-green-400"></i>
-          <span id="lastUpdate">در حال بارگذاری...</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <i class="fas fa-users text-indigo-400"></i>
-          <span id="totalPlayers">0</span> بازیکن
-        </div>
-      </div>
-    </header>
+      <p class="text-xl mt-3 text-gray-300">۵۰ کاربر برتر بر اساس سکه</p>
+      <button id="refreshBtn" class="mt-6 refresh-btn text-white px-8 py-3 rounded-full shadow-lg flex items-center mx-auto gap-2 text-lg font-bold">
+        <i class="fas fa-sync-alt"></i> به‌روزرسانی
+      </button>
+    </div>
 
-    <!-- سه رتبه برتر (پودیوم) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-      <div id="podium2" class="card bg-gradient-to-b from-gray-700 to-gray-900 rounded-2xl p-6 text-center hidden">
-        <div class="text-6xl font-bold text-gray-400 mb-4">2</div>
-        <div class="w-28 h-28 mx-auto rounded-full overflow-hidden border-8 border-gray-500 shadow-2xl">
-          <img id="podium2Avatar" src="" alt="" class="w-full h-full object-cover"/>
-        </div>
-        <h3 id="podium2Name" class="text-2xl font-bold mt-4"></h3>
-        <p id="podium2Job" class="text-gray-400"></p>
-        <div class="mt-4 text-3xl font-extrabold text-silver">
-          <i class="fas fa-coins mr-2"></i> <span id="podium2Coins"></span>
-        </div>
-      </div>
+    <!-- آخرین بروزرسانی -->
+    <div class="text-center mb-6 text-sm text-gray-400">
+      آخرین بروزرسانی: <span id="lastUpdate">در حال بارگذاری...</span>
+    </div>
 
-      <div id="podium1" class="card bg-gradient-to-b from-yellow-600 to-yellow-800 rounded-2xl p-8 text-center transform scale-110 shadow-2xl relative">
-        <div class="absolute -top-12 left-1/2 transform -translate-x-1/2">
-          <i class="fas fa-crown text-8xl text-yellow-400 trophy pulse"></i>
-        </div>
-        <div class="text-7xl font-bold text-yellow-300 mb-6 mt-8">1</div>
-        <div class="w-36 h-36 mx-auto rounded-full overflow-hidden border-8 border-yellow-400 shadow-2xl">
-          <img id="podium1Avatar" src="" alt="" class="w-full h-full object-cover"/>
-        </div>
-        <h3 id="podium1Name" class="text-3xl font-extrabold mt-6"></h3>
-        <p id="podium1Job" class="text-yellow-200 text-lg"></p>
-        <div class="mt-6 text-4xl font-extrabold">
-          <i class="fas fa-coins mr-3"></i> <span id="podium1Coins"></span>
-        </div>
-      </div>
-
-      <div id="podium3" class="card bg-gradient-to-b from-orange-700 to-orange-900 rounded-2xl p-6 text-center hidden">
-        <div class="text-6xl font-bold text-orange-400 mb-4">3</div>
-        <div class="w-28 h-28 mx-auto rounded-full overflow-hidden border-8 border-orange-500 shadow-2xl">
-          <img id="podium3Avatar" src="" alt="" class="w-full h-full object-cover"/>
-        </div>
-        <h3 id="podium3Name" class="text-2xl font-bold mt-4"></h3>
-        <p id="podium3Job" class="text-orange-200"></p>
-        <div class="mt-4 text-3xl font-extrabold text-bronze">
-          <i class="fas fa-coins mr-2"></i> <span id="podium3Coins"></span>
-        </div>
+    <!-- لیدربورد -->
+    <div id="leaderboard" class="grid gap-4">
+      <div class="text-center py-12">
+        <i class="fas fa-spinner fa-spin text-6xl text-indigo-500"></i>
+        <p class="mt-4 text-xl">در حال دریافت اطلاعات از سرور...</p>
       </div>
     </div>
 
-    <!-- جدول رتبه ۴ به بعد -->
-    <div class="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-center">
-        <h2 class="text-3xl font-bold">رتبه‌بندی کامل</h2>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-black/30">
-            <tr>
-              <th class="px-6 py-5 text-right">رتبه</th>
-              <th class="px-6 py-5 text-right">بازیکن</th>
-              <th class="px-6 py-5 text-center">شغل</th>
-              <th class="px-6 py-5 text-center">سطح</th>
-              <th class="px-6 py-5 text-center">سکه</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardBody" class="divide-y divide-white/10">
-            <!-- ردیف‌ها به صورت داینامیک اضافه میشن -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- صفحه‌بندی -->
-      <div class="p-6 flex justify-between items-center bg-black/20">
-        <button id="prevPage" class="px-6 py-3 bg-indigo-600 rounded-xl hover:bg-indigo-700 transition disabled:opacity-50" disabled>
-          <i class="fas fa-chevron-right ml-2"></i> قبلی
-        </button>
-        <span class="text-lg">صفحه <span id="currentPage">1</span></span>
-        <button id="nextPage" class="px-6 py-3 bg-indigo-600 rounded-xl hover:bg-indigo-700 transition">
-          بعدی <i class="fas fa-chevron-left mr-2"></i>
-        </button>
-      </div>
-    </div>
-
-    <footer class="text-center mt-16 text-gray-400">
-      <p>به‌روزرسانی خودکار هر ۶۰ ثانیه</p>
-    </footer>
   </div>
 
   <script>
-    const API_BASE = window.location.origin; // یا آدرس Worker رو دستی بده
-    let currentPage = 1;
-    const limit = 25;
+    const API_BASE = location.origin; // یا آدرس ورکرت رو دستی بنویس: "https://your-worker.workers.dev"
 
-    async function loadLeaderboard(page = 1) {
+    async function loadLeaderboard() {
+      const container = document.getElementById('leaderboard');
+      container.innerHTML = `<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-6xl text-indigo-500"></i></div>`;
+
       try {
-        const res = await fetch(`${API_BASE}/api/leaderboard?page=${page}&limit=${limit}`);
+        const res = await fetch(API_BASE + '/top_coins?limit=50');
         const data = await res.json();
 
-        document.getElementById('totalPlayers').textContent = data.total.toLocaleString('fa-IR');
-        document.getElementById('lastUpdate').textContent = new Date().toLocaleString('fa-IR');
-
-        // پودیوم
-        if (data.users[0]) {
-          document.getElementById('podium1Name').textContent = data.users[0].firstName || 'ناشناس';
-          document.getElementById('podium1Job').textContent = data.users[0].job || 'بیکار';
-          document.getElementById('podium1Coins').textContent = Number(data.users[0].coins).toLocaleString('fa-IR');
-          document.getElementById('podium1Avatar').src = data.users[0].photo || 'https://via.placeholder.com/150/4f46e5/ffffff?text=' + (data.users[0].firstName?.[0] || '?');
-          document.getElementById('podium1').classList.remove('hidden');
-        }
-        if (data.users[1]) {
-          document.getElementById('podium2Name').textContent = data.users[1].firstName || 'ناشناس';
-          document.getElementById('podium2Job').textContent = data.users[1].job || 'بیکار';
-          document.getElementById('podium2Coins').textContent = Number(data.users[1].coins).toLocaleString('fa-IR');
-          document.getElementById('podium2Avatar').src = data.users[1].photo || 'https://via.placeholder.com/150/94a3b8/ffffff?text=' + (data.users[1].firstName?.[0] || '?');
-          document.getElementById('podium2').classList.remove('hidden');
-        }
-        if (data.users[2]) {
-          document.getElementById('podium3Name').textContent = data.users[2].firstName || 'ناشناس';
-          document.getElementById('podium3Job').textContent = data.users[2].job || 'بیکار';
-          document.getElementById('podium3Coins').textContent = Number(data.users[2].coins).toLocaleString('fa-IR');
-          document.getElementById('podium3Avatar').src = data.users[2].photo || 'https://via.placeholder.com/150/f97316/ffffff?text=' + (data.users[2].firstName?.[0] || '?');
-          document.getElementById('podium3').classList.remove('hidden');
+        if (!data.success || !data.top_users || data.top_users.length === 0) {
+          container.innerHTML = `<p class="text-center text-red-400 text-xl">هیچ کاربری یافت نشد یا خطایی رخ داد.</p>`;
+          return;
         }
 
-        // جدول
-        const tbody = document.getElementById('leaderboardBody');
-        tbody.innerHTML = '';
-        data.users.forEach((user, index) => {
-          const rank = (page - 1) * limit + index + 1;
-          const row = document.createElement('tr');
-          row.className = 'hover:bg-white/5 transition';
-          if (rank <= 3) row.className += rank === 1 ? ' rank-1' : rank === 2 ? ' rank-2' : ' rank-3';
+        const now = new Date().toLocaleString('fa-IR');
+        document.getElementById('lastUpdate').textContent = now;
 
-          row.innerHTML = `
-            <td class="px-6 py-5 text-2xl font-bold">${rank === 1 ? '1st' : rank === 2 ? '2nd' : rank === 3 ? '3rd' : rank}</td>
-            <td class="px-6 py-5">
-              <div class="flex items-center gap-4">
-                <img src="${user.photo || 'https://via.placeholder.com/60/6366f1/ffffff?text=' + (user.firstName?.[0] || '?')}" class="w-12 h-12 rounded-full border-2 border-white/30">
-                <div>
-                  <div class="font-bold text-lg">${user.firstName || 'ناشناس'} ${user.lastName || ''}</div>
-                  <div class="text-sm text-gray-400">@${user.username || 'بدون یوزرنیم'}</div>
-                </div>
+        container.innerHTML = '';
+        data.top_users.forEach((user, index) => {
+          const rank = index + 1;
+          const isTop3 = rank <= 3;
+          const medal = rank === 1 ? 'مدال طلایی' : rank === 2 ? 'مدال نقره‌ای' : rank === 3 ? 'مدال برنزی' : '';
+          const bgClass = isTop3 ? `rank-${rank}` : 'bg-gradient-to-r from-indigo-900 to-purple-900';
+
+          const card = document.createElement('div');
+          card.className = `card rounded-2xl p-6 flex items-center justify-between shadow-2xl border ${isTop3 ? 'text-white font-bold' : ''}`;
+          card.style.background = isTop3 ? '' : bgClass;
+
+          card.innerHTML = `
+            <div class="flex items-center gap-5">
+              <div class="text-5xl font-bold ${isTop3 ? 'text-white drop-shadow-lg' : 'text-yellow-400'}">
+                ${rank}
               </div>
-            </td>
-            <td class="px-6 py-5 text-center">${user.job || 'بیکار'}</td>
-            <td class="px-6 py-5 text-center font-bold">${user.level || 1}</td>
-            <td class="px-6 py-5 text-center text-xl font-extrabold text-yellow-400">
-              ${Number(user.coins).toLocaleString('fa-IR')}
-              <i class="fas fa-coins ml-1"></i>
-            </td>
+              <div>
+                <div class="text-2xl font-bold">${user.name}</div>
+                <div class="text-sm opacity-80">سطح ${user.level || 1} • ${user.job || 'بیکار'}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-3xl font-extrabold text-yellow-300">
+                ${Number(user.coins || 0).toLocaleString('fa-IR')}
+                <span class="text-lg">سکه</span>
+              </div>
+              ${medal ? `<div class="text-sm mt-1">${medal}</div>` : ''}
+            </div>
           `;
-          tbody.appendChild(row);
+          container.appendChild(card);
         });
-
-        // صفحه‌بندی
-        document.getElementById('currentPage').textContent = page;
-        document.getElementById('prevPage').disabled = page === 1;
-        document.getElementById('nextPage').disabled = data.users.length < limit;
 
       } catch (err) {
         console.error(err);
-        document.getElementById('leaderboardBody').innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-400">خطا در بارگذاری لیدربورد</td></tr>`;
+        container.innerHTML = `<p class="text-center text-red-400 text-xl">خطا در ارتباط با سرور!</p>`;
       }
     }
 
-    document.getElementById('prevPage').onclick = () => { if (currentPage > 1) loadLeaderboard(--currentPage); };
-    document.getElementById('nextPage').onclick = () => loadLeaderboard(++currentPage);
-
-    // بارگذاری اولیه و به‌روزرسانی خودکار
+    // بارگذاری اولیه و دکمه رفرش
+    document.getElementById('refreshBtn').addEventListener('click', loadLeaderboard);
     loadLeaderboard();
-    setInterval(loadLeaderboard, 60000); // هر ۶۰ ثانیه
+
+    // هر ۶۰ ثانیه خودکار بروزرسانی (اختیاری)
+    setInterval(loadLeaderboard, 60000);
   </script>
 </body>
 </html>
