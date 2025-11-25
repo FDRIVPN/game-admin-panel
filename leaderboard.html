@@ -5,22 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>لیدربورد - ۵۰ کاربر برتر</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
     body {
       background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-      font-family: 'Tahoma', sans-serif;
+      font-family: Tahoma, sans-serif;
       min-height: 100vh;
       padding: 2rem 1rem;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
+    .container { max-width: 800px; margin: 0 auto; }
     .card {
       background: white;
       border-radius: 1.5rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
       overflow: hidden;
       border: 1px solid #e0e7ff;
     }
@@ -30,62 +26,25 @@
       padding: 2rem;
       text-align: center;
     }
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 900;
-      margin: 0;
-    }
-    .header p {
-      opacity: 0.9;
-      margin-top: 0.5rem;
-      font-size: 1.1rem;
-    }
+    .header h1 { font-size: 2.5rem; font-weight: 900; margin: 0; }
+    .header p { opacity: 0.9; margin-top: 0.5rem; font-size: 1.1rem; }
     .list-item {
       padding: 1.2rem 1.5rem;
       border-bottom: 1px solid #f0f0f0;
-      transition: all 0.2s;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: all 0.2s;
     }
-    .list-item:hover {
-      background: #f8faff;
-      transform: translateX(-4px);
-    }
-    .list-item:last-child {
-      border-bottom: none;
-    }
-    .rank {
-      font-size: 2rem;
-      font-weight: 900;
-      width: 80px;
-      text-align: center;
-    }
+    .list-item:hover { background: #f8faff; transform: translateX(-4px); }
+    .rank { font-size: 2rem; font-weight: 900; width: 80px; text-align: center; }
     .rank-1 { color: #f59e0b; }
     .rank-2 { color: #94a3b8; }
     .rank-3 { color: #f97316; }
-    .user-info h3 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin: 0;
-      color: #1e293b;
-    }
-    .user-info p {
-      margin: 0.3rem 0 0;
-      color: #64748b;
-      font-size: 0.95rem;
-    }
-    .coins {
-      font-size: 1.8rem;
-      font-weight: 900;
-      color: #f59e0b;
-    }
-    .loading {
-      text-align: center;
-      padding: 4rem;
-      color: #64748b;
-      font-size: 1.5rem;
-    }
+    .user-info h3 { font-size: 1.4rem; font-weight: 700; margin: 0; color: #1e293b; }
+    .user-info p { margin: 0.3rem 0 0; color: #64748b; font-size: 0.95rem; }
+    .coins { font-size: 1.8rem; font-weight: 900; color: #f59e0b; }
+    .loading { text-align: center; padding: 4rem; color: #64748b; font-size: 1.5rem; }
   </style>
 </head>
 <body>
@@ -95,7 +54,6 @@
         <h1>لیدربورد بازی</h1>
         <p>۵۰ کاربر برتر بر اساس سکه</p>
       </div>
-
       <div id="leaderboard-list" class="loading">
         <i class="fas fa-spinner fa-spin text-5xl text-indigo-500"></i>
         <p class="mt-4">در حال بارگذاری...</p>
@@ -104,16 +62,17 @@
   </div>
 
   <script>
-    const API_URL = location.origin; // آدرس Worker خودت
+    const API_URL = location.origin; // یا آدرس Worker رو دستی بنویس
 
     async function loadLeaderboard() {
       const container = document.getElementById('leaderboard-list');
 
       try {
         const res = await fetch(API_URL + '/top_coins?limit=50');
+        if (!res.ok) throw new Error('سرور پاسخ نداد');
         const data = await res.json();
 
-        if (!data.success || !data.top_users || data.top_users.length === 0) {
+        if (!data.success || !Array.isArray(data.top_users) || data.top_users.length === 0) {
           container.innerHTML = '<div class="loading">هیچ کاربری یافت نشد.</div>';
           return;
         }
@@ -122,16 +81,19 @@
         data.top_users.forEach((user, i) => {
           const rank = i + 1;
           const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
-          const job = user.job && user.job !== 'بیکار' ? user.job : 'بدون شغل';
+          const name = user.name || 'ناشناس';
+          const level = user.level || 1;
+          const job = (user.job && user.job !== 'بیکار' && user.job !== null) ? user.job : 'بدون شغل';
+          const coins = Number(user.coins || 0).toLocaleString('fa-IR');
 
           html += `
             <div class="list-item">
               <div class="rank ${rankClass}">${rank}</div>
               <div class="user-info">
-                <h3>${user.name || 'ناشناس'}</h3>
-                <p>سطح ${user.level || 1} • ${job}</p>
+                <h3>${name}</h3>
+                <p>سطح ${level} • ${job}</p>
               </div>
-              <div class="coins">${Number(user.coins || 0).toLocaleString('fa-IR')}</div>
+              <div class="coins">${coins}</div>
             </div>
           `;
         });
@@ -139,11 +101,12 @@
         container.innerHTML = html;
 
       } catch (err) {
+        console.error('خطا:', err);
         container.innerHTML = '<div class="loading text-red-600">خطا در اتصال به سرور!</div>';
       }
     }
 
-    // فقط یک بار هنگام لود صفحه
+    // فقط یک بار وقتی صفحه باز شد
     loadLeaderboard();
   </script>
 </body>
