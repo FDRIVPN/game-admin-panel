@@ -1,2113 +1,1066 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>پنل مدیریت پیشرفته بازی</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<!DOCTYPE html> 
+<html lang="fa" dir="rtl"> 
+<head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> 
+  <title>پنل مدیریت پیشرفته بازی</title> 
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/> 
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/> 
   <style>
-    :root {
-      --primary: #6366f1;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --dark: #1f2937;
-      --light: #f9fafb;
-    }
-    
-    /* احراز هویت */
-    .auth-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.95);
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(10px);
-    }
-    
-    .auth-box {
-      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-      padding: 3rem;
-      border-radius: 1.5rem;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-      width: 90%;
-      max-width: 450px;
-      border: 1px solid #374151;
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* حالت‌های نمایش لیست */
-    .compact-mode .user-card {
-      padding: 0.75rem;
-      font-size: 0.875rem;
-    }
-    
-    .compact-mode .user-card .details {
-      display: none;
-    }
-    
-    .expanded-mode .user-card {
-      padding: 1.5rem;
-      font-size: 1rem;
-    }
-    
-    .expanded-mode .user-card .details {
-      display: block;
-    }
-    
-    /* کارت کاربر */
-    .user-card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .dark .user-card {
-      background: #1f2937;
-      border-color: #374151;
-    }
-    
-    .user-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-    }
-    
-    /* نشانگر gem */
-    .gem-badge {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-weight: bold;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.875rem;
-    }
-    
-    /* مودال */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-      animation: fadeIn 0.3s ease-out;
-    }
-    
-    .modal-content {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 1.5rem;
-      max-width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-      animation: slideUp 0.3s ease-out;
-    }
-    
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .dark .modal-content {
-      background: #1f2937;
-      color: #e5e7eb;
-    }
-    
-    /* اسکرولبار زیبا */
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #f3f4f6;
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #9ca3af;
-      border-radius: 10px;
-    }
-    
-    .dark ::-webkit-scrollbar-track {
-      background: #374151;
-    }
-    
-    .dark ::-webkit-scrollbar-thumb {
-      background: #6b7280;
-    }
-    
-    /* دکمه‌های بن قرمز */
-    .btn-danger {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-      color: white !important;
-      border: none !important;
-    }
-    
-    .btn-danger:hover {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-      transform: translateY(-2px);
-    }
-    
-    /* کارت‌های آمار */
-    .stat-card {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .dark .stat-card {
-      background: #1f2937;
-      border-color: #374151;
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
-    }
-    
-    /* نوار پیشرفت */
-    .progress-bar {
-      height: 0.5rem;
-      background: #e5e7eb;
-      border-radius: 9999px;
-      overflow: hidden;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-      border-radius: 9999px;
-      transition: width 0.5s ease;
-    }
-    
-    /* انیمیشن لودینگ */
-    .loading-spinner {
-      border: 3px solid #f3f4f6;
-      border-top: 3px solid #3b82f6;
-      border-radius: 50%;
-      width: 2rem;
-      height: 2rem;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* اعلان */
-    .notification {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      padding: 1rem 1.5rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-      z-index: 1000;
-      animation: slideIn 0.3s ease-out;
-      max-width: 400px;
-    }
-    
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    
-    .notification.success {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      border-left: 4px solid #34d399;
-    }
-    
-    .notification.error {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      border-left: 4px solid #f87171;
-    }
-    
-    .notification.warning {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-      border-left: 4px solid #fbbf24;
-    }
-    
-    /* دکمه انتخاب */
-    .select-button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      user-select: none;
-    }
-    
-    .select-button.selected {
-      background: #3b82f6;
-      color: white;
-      font-weight: bold;
-    }
-    
-    /* دراپ‌دان */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background: white;
-      min-width: 200px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-      z-index: 1;
-      border-radius: 0.5rem;
-      overflow: hidden;
-    }
-    
-    .dark .dropdown-content {
-      background: #1f2937;
-      border: 1px solid #374151;
-    }
-    
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-    
-    /* تگ‌ها */
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-left: 0.25rem;
-    }
-    
-    .tag.admin {
-      background: rgba(168, 85, 247, 0.1);
-      color: #a855f7;
-    }
-    
-    .tag.banned {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
-    }
-    
-    .tag.active {
-      background: rgba(34, 197, 94, 0.1);
-      color: #22c55e;
-    }
-    
-    /* حالت‌های مختلف */
-    .view-mode-grid .users-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-    
-    .view-mode-list .users-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    /* پویانمایی‌ها */
-    .pulse {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    
-    .shake {
-      animation: shake 0.5s ease-in-out;
-    }
-    
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-      20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
-  </style>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
-  
-  <!-- صفحه احراز هویت -->
-  <div id="authOverlay" class="auth-overlay">
-    <div class="auth-box">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 mb-4">
-          <i class="fas fa-user-shield text-4xl text-white"></i>
-        </div>
-        <h2 class="text-3xl font-bold text-white">🔐 ورود به پنل مدیریت</h2>
-        <p class="text-gray-400 mt-2">لطفاً رمز عبور ادمین را وارد کنید</p>
-      </div>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-gray-300 mb-2 text-sm font-medium">رمز عبور ادمین</label>
-          <input id="adminPassword" type="password" 
-                 placeholder="رمز عبور ادمین را وارد کنید"
-                 class="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                 onkeypress="if(event.key === 'Enter') authenticate()">
-        </div>
-        
-        <button onclick="authenticate()" 
-                class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white p-3 rounded-xl hover:opacity-90 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl">
-          <i class="fas fa-sign-in-alt ml-2"></i> ورود به پنل مدیریت
-        </button>
-        
-        <p id="authError" class="text-red-400 text-center mt-4 hidden animate-pulse">
-          <i class="fas fa-exclamation-circle ml-1"></i> رمز عبور نادرست است
-        </p>
-        
-        <div class="text-center mt-6 pt-6 border-t border-gray-800">
-          <p class="text-gray-500 text-sm">
-            <i class="fas fa-info-circle ml-1"></i>
-            این پنل فقط برای مدیران سیستم قابل دسترسی است
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+  :root {
+    --primary: #6366f1;
+    --danger: #ef4444;
+    --success: #10b981;
+    --dark: #1f2937;
+    --light: #f9fafb;
+  }
+  .dark { background: #111827; color: #e5e7eb; }
+  .card { transition: all 0.3s; cursor: pointer; }
+  .card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+  .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  .hidden { display: none; }
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 999; display: flex; justify-content: center; align-items: center; }
+  .modal-content { background: #fff; padding: 24px; border-radius: 16px; max-width: 90%; max-height: 90%; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+  .modal-dark { background: #1f2937; color: #e5e7eb; }
 
-  <!-- محتوای اصلی پنل -->
-  <div id="mainPanel" class="hidden">
-    <!-- نوار بالایی -->
-    <div class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
-      <div class="container mx-auto px-4 py-3">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-4 space-x-reverse">
-            <div class="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-xl">
-              <i class="fas fa-gamepad text-2xl text-white"></i>
-            </div>
-            <div>
-              <h1 class="text-xl font-bold">🎮 پنل مدیریت پیشرفته بازی</h1>
-              <p class="text-sm text-gray-500 dark:text-gray-400">مدیریت کامل کاربران، ارز، بن‌ها و گنج‌ها</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center space-x-3 space-x-reverse">
-            <button id="themeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition" title="تغییر تم">
-              <i class="fas fa-moon"></i>
-            </button>
-            
-            <button onclick="showUserProfile()" class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300" title="پروفایل">
-              <i class="fas fa-user"></i>
-            </button>
-            
-            <button onclick="logout()" class="p-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300" title="خروج">
-              <i class="fas fa-sign-out-alt"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+  /* فقط دکمه‌های بن قرمز بشن (دسته‌جمعی + لیست کامل) */
+  #btnShowBulkBan,
+  #btnShowListBanned {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  }
+  #btnShowBulkBan:hover,
+  #btnShowListBanned:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    transform: translateY(-4px);
+  }
 
-    <!-- محتوای اصلی -->
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
-      <!-- کارت‌های آمار -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="stat-card" onclick="showAllUsers()">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">👥 کل کاربران</p>
-              <p id="totalUsers" class="text-3xl font-bold mt-1">0</p>
-              <p class="text-xs text-gray-500 mt-1"><span id="activeUsers">0</span> کاربر فعال</p>
-            </div>
-            <i class="fas fa-users text-3xl text-blue-400 opacity-80"></i>
-          </div>
-          <div class="mt-4">
-            <div class="progress-bar">
-              <div id="activeUsersProgress" class="progress-fill" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="stat-card" onclick="showTopCoins()">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">💰 کل ثروت</p>
-              <p id="totalCoins" class="text-3xl font-bold mt-1">0</p>
-              <p id="totalGems" class="text-sm text-amber-600 dark:text-amber-400 font-semibold mt-1">0 جم</p>
-            </div>
-            <i class="fas fa-coins text-3xl text-yellow-400 opacity-80"></i>
-          </div>
-          <div class="mt-4 flex items-center text-sm text-gray-500">
-            <i class="fas fa-exchange-alt ml-1"></i>
-            <span>نرخ: 1000 سکه = 1 جم</span>
-          </div>
-        </div>
-        
-        <div class="stat-card" onclick="showBannedUsers()">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">🔨 وضعیت بن</p>
-              <p id="bannedNow" class="text-3xl font-bold mt-1">0</p>
-              <p class="text-xs text-gray-500 mt-1">کاربر بن شده</p>
-            </div>
-            <i class="fas fa-ban text-3xl text-red-400 opacity-80"></i>
-          </div>
-          <div class="mt-4">
-            <button onclick="showBanHistory()" class="text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 px-3 py-1 rounded-lg">
-              <i class="fas fa-history ml-1"></i> مشاهده تاریخچه
-            </button>
-          </div>
-        </div>
-        
-        <div class="stat-card" onclick="showAdminList()">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">👑 ادمین‌ها</p>
-              <p id="totalAdmins" class="text-3xl font-bold mt-1">0</p>
-              <p class="text-xs text-gray-500 mt-1">مدیر سیستم</p>
-            </div>
-            <i class="fas fa-user-shield text-3xl text-purple-400 opacity-80"></i>
-          </div>
-          <div class="mt-4">
-            <button onclick="showAdminList()" class="text-xs bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-3 py-1 rounded-lg">
-              <i class="fas fa-list ml-1"></i> لیست ادمین‌ها
-            </button>
-          </div>
-        </div>
-      </div>
+  /* دارک مود: قرمز تیره و خوانا */
+  .dark #btnShowBulkBan,
+  .dark #btnShowListBanned {
+    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%) !important;
+  }
+  .dark #btnShowBulkBan:hover,
+  .dark #btnShowListBanned:hover {
+    background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%) !important;
+  }
 
-      <!-- دکمه‌های سریع -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <button onclick="showConvertCurrencyModal()" 
-                class="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
-          <i class="fas fa-exchange-alt text-xl"></i>
-          <span>تبدیل ارز</span>
-        </button>
-        
-        <button onclick="showJobSearchModal()" 
-                class="bg-gradient-to-r from-green-600 to-green-800 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
-          <i class="fas fa-briefcase text-xl"></i>
-          <span>جستجوی شغل</span>
-        </button>
-        
-        <button onclick="showDataTransferModal()" 
-                class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
-          <i class="fas fa-people-arrows text-xl"></i>
-          <span>انتقال داده</span>
-        </button>
-        
-        <button onclick="showAdvancedBulkBan()" 
-                class="btn-danger p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
-          <i class="fas fa-users-slash text-xl"></i>
-          <span>بن پیشرفته</span>
-        </button>
-      </div>
+  /* کارت بن‌شده‌ها مثل قبل بمونه (هیچ تغییری نده) */
+  #cardBannedNow { /* بدون !important و بدون تغییر رنگ */ }
 
-      <!-- کنترل‌های نمایش -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6">
-        <div class="flex flex-wrap gap-4 items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="font-medium">نمایش:</span>
-            <div class="flex gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-              <button onclick="setViewMode('compact')" id="btnCompact" class="select-button">
-                <i class="fas fa-compress ml-1"></i> فشرده
-              </button>
-              <button onclick="setViewMode('expanded')" id="btnExpanded" class="select-button selected">
-                <i class="fas fa-expand ml-1"></i> گسترده
-              </button>
-            </div>
-            
-            <div class="flex gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-              <button onclick="setListView('grid')" id="btnGrid" class="select-button">
-                <i class="fas fa-th-large ml-1"></i> شبکه‌ای
-              </button>
-              <button onclick="setListView('list')" id="btnList" class="select-button selected">
-                <i class="fas fa-list ml-1"></i> لیستی
-              </button>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-3">
-            <span class="font-medium">تعداد در صفحه:</span>
-            <select id="pageSizeSelect" onchange="changePageSize(this.value)" 
-                    class="bg-gray-100 dark:bg-gray-700 border-0 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
-              <option value="10">10 کاربر</option>
-              <option value="20">20 کاربر</option>
-              <option value="50" selected>50 کاربر</option>
-              <option value="100">100 کاربر</option>
-              <option value="all">همه کاربران</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="mt-4 flex flex-wrap gap-4">
-          <!-- جستجوی سریع -->
-          <div class="flex-1 min-w-[300px]">
-            <div class="relative">
-              <input id="quickSearch" type="text" 
-                     placeholder="جستجوی کاربر (نام، شناسه، شغل)"
-                     class="w-full p-3 pr-10 rounded-lg bg-gray-100 dark:bg-gray-700 border-0 focus:ring-2 focus:ring-blue-500">
-              <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-          </div>
-          
-          <!-- فیلترها -->
-          <div class="flex gap-2">
-            <button onclick="filterUsers('active')" class="px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
-              فعال‌ها
-            </button>
-            <button onclick="filterUsers('banned')" class="px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300">
-              بن‌شده‌ها
-            </button>
-            <button onclick="filterUsers('admin')" class="px-4 py-2 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300">
-              ادمین‌ها
-            </button>
-            <button onclick="clearFilters()" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700">
-              پاک کردن
-            </button>
-          </div>
-        </div>
-      </div>
+  /* لیست بن‌شده‌ها داخل مودال (قرمز شیک) */
+  .modal-content li.bg-red-50,
+  .modal-content li[class*="bg-red"] {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+    border-left: 6px solid #ef4444 !important;
+    color: #991b1b !important;
+  }
+  .dark .modal-content li.bg-red-50,
+  .dark .modal-content li[class*="bg-red"] {
+    background: linear-gradient(135deg, #450a0a 0%, #4c0519 100%) !important;
+    border-left: 6px solid #f87171 !important;
+    color: #fca5a5 !important;
+  }
+  .dark .modal-content li.bg-red-50 * { color: #fca5a5 !important; }
 
-      <!-- لیست کاربران -->
-      <div id="usersContainer" class="view-mode-list">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold flex items-center gap-2">
-            <i class="fas fa-users"></i>
-            لیست کاربران
-            <span id="usersCount" class="text-sm font-normal bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-full">0</span>
-          </h2>
-          
-          <div class="flex items-center gap-2">
-            <button onclick="refreshUsers()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">
-              <i class="fas fa-sync-alt"></i>
-            </button>
-            <button onclick="exportUsers()" class="p-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
-              <i class="fas fa-download"></i>
-            </button>
-          </div>
-        </div>
-        
-        <!-- هدر جدول (در حالت لیستی) -->
-        <div id="tableHeader" class="hidden md:grid grid-cols-12 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-t-xl border-b dark:border-gray-700 font-semibold text-sm">
-          <div class="col-span-3">کاربر</div>
-          <div class="col-span-2">ارز</div>
-          <div class="col-span-2">سطح/شغل</div>
-          <div class="col-span-2">وضعیت</div>
-          <div class="col-span-3">عملیات</div>
-        </div>
-        
-        <!-- لیست کاربران -->
-        <div id="usersList" class="space-y-3 mb-6">
-          <div class="text-center py-12 text-gray-500">
-            <div class="loading-spinner mx-auto"></div>
-            <p class="mt-4">در حال بارگذاری کاربران...</p>
-          </div>
-        </div>
-        
-        <!-- Pagination -->
-        <div class="flex justify-between items-center mt-8">
-          <div id="pageInfo" class="text-sm text-gray-600 dark:text-gray-400">
-            در حال بارگذاری...
-          </div>
-          
-          <div class="flex gap-2">
-            <button id="firstPage" onclick="goToPage(1)" 
-                    class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fas fa-angle-double-right"></i>
-            </button>
-            <button id="prevPage" onclick="prevPage()" 
-                    class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-            
-            <div class="flex gap-1">
-              <!-- صفحات در اینجا با JS ساخته می‌شوند -->
-            </div>
-            
-            <button id="nextPage" onclick="nextPage()" 
-                    class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            <button id="lastPage" onclick="goToPage(100)" 
-                    class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fas fa-angle-double-left"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+  /* اسکرولبار شیک */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+  .dark ::-webkit-scrollbar-track { background: #374151; }
+  .dark ::-webkit-scrollbar-thumb { background: #6b7280; }
+</style>
+</head> 
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors"> 
+  <div class="container mx-auto p-4 max-w-7xl"> 
+    <header class="text-center mb-8"> 
+      <h1 class="text-4xl font-bold gradient-bg bg-clip-text text-transparent">🎮 پنل مدیریت پیشرفته بازی</h1> 
+      <p class="text-gray-600 dark:text-gray-400 mt-2">مدیریت کامل کاربران, سکه, بن دسته‌جمعی, گنج‌ها و چت‌ها</p> 
+      <button id="themeToggle" class="mt-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700"> 
+        <i class="fas fa-moon"></i> 
+      </button> 
+    </header> 
+    <!-- کارت‌های آمار (6 کارت) --> 
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8"> 
+      <div id="cardTotalUsers" class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between"> 
+        <div> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">کل کاربران</p> 
+          <p id="totalUsers" class="text-3xl font-extrabold mt-1">...</p> 
+        </div> 
+        <i class="fas fa-users text-4xl text-indigo-400 self-end"></i> 
+      </div> 
+      <div id="cardTotalActive" class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between"> 
+        <div> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">کاربران فعال</p> 
+          <p id="totalActive" class="text-3xl font-extrabold mt-1">...</p> 
+        </div> 
+        <i class="fas fa-user-check text-4xl text-green-400 self-end"></i> 
+      </div> 
+      <div id="cardNewToday" class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between"> 
+        <div> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">جدید امروز</p> 
+          <p id="newToday" class="text-3xl font-extrabold mt-1">...</p> 
+        </div> 
+        <i class="fas fa-user-plus text-4xl text-yellow-400 self-end"></i> 
+      </div> 
+      <div id="cardTotalCoins" class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between"> 
+        <div> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">کل سکه‌ها</p> 
+          <p id="totalCoins" class="text-3xl font-extrabold mt-1">...</p> 
+        </div> 
+        <i class="fas fa-coins text-4xl text-amber-400 self-end"></i> 
+      </div> 
+      <div id="cardBannedNow" class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between"> 
+        <div> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">بن شده‌ها</p> 
+          <p id="bannedNow" class="text-3xl font-extrabold mt-1">...</p> 
+        </div> 
+        <i class="fas fa-ban text-4xl text-red-400 self-end"></i> 
+      </div> 
+      <div id="cardTotalAdmins" class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between"> 
+        <div> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">ادمین‌ها</p> 
+          <p id="totalAdmins" class="text-3xl font-extrabold mt-1">...</p> 
+        </div> 
+        <i class="fas fa-user-shield text-4xl text-purple-400 self-end"></i> 
+      </div> 
+    </div> 
+    <!-- بخش دکمه‌های سریع --> 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"> 
+      <button id="btnShowRecentChats" class="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center"> 
+        <i class="fas fa-comments ml-2"></i> چت‌های اخیر 
+      </button> 
+      <button id="btnShowBulkBan" class="bg-gradient-to-r from-red-500 to-red-700 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center"> 
+        <i class="fas fa-users-slash ml-2"></i> بن دسته‌جمعی (100 کاربر) 
+      </button> 
+      <button id="btnShowListBanned" class="bg-gradient-to-r from-orange-500 to-orange-700 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center"> 
+        <i class="fas fa-list ml-2"></i> لیست کاربران بن شده 
+      </button> 
+    </div> 
+    <!-- مدیریت گنج‌ها --> 
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8"> 
+      <h2 class="text-xl font-bold mb-4 flex items-center"><i class="fas fa-gem ml-2"></i> مدیریت گنج‌ها</h2> 
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">مقدار سکه و زمان انتظار (به ثانیه) هر گنج را تنظیم کنید.</p> 
+      <div class="mb-4 flex flex-col md:flex-row gap-4"> 
+        <input id="newTreasureName" type="text" placeholder="نام گنج جدید" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg"/> 
+        <input id="newTreasureCoins" type="number" placeholder="سکه جایزه" class="w-full md:w-28 p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg"/> 
+        <input id="newTreasureDuration" type="number" placeholder="زمان (ثانیه)" class="w-full md:w-28 p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg"/> 
+        <button id="addTreasureBtn" class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto flex items-center justify-center"> 
+          <i class="fas fa-plus ml-2"></i> اضافه کردن گنج 
+        </button> 
+      </div> 
+      <div class="overflow-x-auto"> 
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"> 
+          <thead class="bg-gray-50 dark:bg-gray-700"> 
+            <tr> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID گنج</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">نام</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">سکه جایزه</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">زمان (ثانیه)</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th> 
+            </tr> 
+          </thead> 
+          <tbody id="treasureListBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"> 
+            <tr><td colspan="5" class="p-4 text-center text-gray-500 dark:text-gray-400">درحال بارگذاری گنج‌ها...</td></tr> 
+          </tbody> 
+        </table> 
+      </div> 
+    </div> 
+    <!-- جستجو و مدیریت کاربر --> 
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8"> 
+      <h2 class="text-xl font-bold mb-4 flex items-center"><i class="fas fa-search ml-2"></i> جستجوی پیشرفته کاربر</h2> 
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">می‌توانید با نام یا بخشی از شناسه جستجو کنید. اگر چند نتیجه بود، همه نمایش داده می‌شوند.</p> 
+      <div class="flex flex-col md:flex-row gap-4"> 
+        <input id="userSearchInput" type="text" placeholder="نام کاربر یا بخشی از شناسه را وارد کنید..." class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"/> 
+        <button id="searchButton" class="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition w-full md:w-auto flex items-center justify-center"> 
+          <i class="fas fa-search ml-2"></i> جستجو 
+        </button> 
+      </div> 
+      <!-- نتایج جستجو --> 
+      <div id="searchResults" class="hidden mt-4"> 
+        <h3 class="font-bold mb-2">نتایج جستجو:</h3> 
+        <div id="searchResultsList" class="space-y-2"></div> 
+      </div> 
+    </div> 
+    <!-- جزئیات کاربر --> 
+    <div id="userDetails" class="hidden bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8"> 
+      <h2 class="text-2xl font-bold mb-4 text-indigo-600 dark:text-indigo-400 flex items-center"><i class="fas fa-user-circle ml-2"></i> جزئیات کاربر: <span id="userName" class="mr-1"></span></h2> 
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6"> 
+        <div class="col-span-1 md:col-span-4 border-b pb-4 mb-4"> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">شناسه: <span id="detailId" class="text-gray-900 dark:text-white font-mono text-sm"></span></p> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">تاریخ ساخت: <span id="detailCreatedAt" class="text-gray-900 dark:text-white text-sm"></span></p> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">آخرین ورود: <span id="detailLastLogin" class="text-gray-900 dark:text-white text-sm"></span></p> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">کد دعوت: <span id="detailReferral" class="text-gray-900 dark:text-white font-mono text-sm"></span></p> 
+          <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"> وضعیت: <span id="detailActive" class="mr-1 font-bold"></span> <span id="detailAdmin" class="text-xs mr-2 p-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"></span> </p> 
+          <p class="text-sm text-gray-500 dark:text-gray-400">بن تا: <span id="detailBan" class="text-red-500 font-bold"></span></p> 
+        </div> 
+        <div class="p-4 border dark:border-gray-700 rounded-lg col-span-1 md:col-span-2"> 
+          <h3 class="font-semibold mb-3">اطلاعات اصلی (نام, سکه, شغل)</h3> 
+          <div class="mb-3"> 
+            <label class="block text-sm font-medium mb-1">نام جدید (<span id="currentName"></span>)</label> 
+            <input id="editName" type="text" placeholder="نام جدید (منحصر به فرد می‌شود)" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded-md"/> 
+          </div> 
+          <div class="mb-3"> 
+            <label class="block text-sm font-medium mb-1">سکه‌ها (<span id="currentCoins">0</span>)</label> 
+            <input id="editCoins" type="number" placeholder="مقدار جدید سکه" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded-md"/> 
+          </div> 
+          <div class="mb-3"> 
+            <label class="block text-sm font-medium mb-1">شغل (<span id="currentJob">بیکار</span>)</label> 
+            <input id="editJob" type="text" placeholder="شغل جدید" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded-md"/> 
+          </div> 
+          <button id="updateInfoButton" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition w-full mt-2"> 
+            <i class="fas fa-save ml-2"></i> ذخیره اطلاعات 
+          </button> 
+          <button id="viewNameHistoryButton" class="bg-gray-600 text-white p-2 rounded-lg hover:bg-gray-700 transition w-full mt-2"> 
+            <i class="fas fa-history ml-2"></i> تاریخچه نام‌ها 
+          </button> 
+        </div> 
+        <div class="p-4 border dark:border-gray-700 rounded-lg"> 
+          <h3 class="font-semibold mb-3">سطح/تجربه</h3> 
+          <div class="mb-3"> 
+            <label class="block text-sm font-medium mb-1">سطح (<span id="currentLevel">1</span>)</label> 
+            <input id="editLevel" type="number" placeholder="سطح جدید" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded-md"/> 
+          </div> 
+          <div class="mb-3"> 
+            <label class="block text-sm font-medium mb-1">تجربه (<span id="currentExp">0</span>)</label> 
+            <input id="editExp" type="number" placeholder="تجربه جدید" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded-md"/> 
+          </div> 
+          <button id="updateLevelExpButton" class="bg-yellow-600 text-white p-2 rounded-lg hover:bg-yellow-700 transition w-full mt-2"> 
+            <i class="fas fa-level-up-alt ml-2"></i> ذخیره سطح/تجربه 
+          </button> 
+        </div> 
+        <div class="p-4 border border-red-300 dark:border-red-700 rounded-lg bg-red-50 dark:bg-red-900"> 
+          <h3 class="font-semibold mb-3 text-red-600 dark:text-red-400">ابزارهای مدیریتی/چت</h3> 
+          <button id="viewChatHistoryButton" class="bg-indigo-700 text-white p-2 rounded-lg hover:bg-indigo-800 transition w-full mb-3"> 
+            <i class="fas fa-comments ml-2"></i> نمایش تاریخچه چت 
+          </button> 
+          <hr class="my-3 border-red-500 dark:border-red-600"> 
+          <div class="mb-3"> 
+            <label class="block text-sm font-medium mb-1">مدت زمان بن (دقیقه)</label> 
+            <input id="banMinutes" type="number" placeholder="مثال: 240 (4 ساعت)" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded-md"/> 
+          </div> 
+          <button id="banButton" class="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition w-full mt-2"> 
+            <i class="fas fa-hammer ml-2"></i> اعمال بن 
+          </button> 
+          <button id="unbanButton" class="bg-gray-600 text-white p-2 rounded-lg hover:bg-gray-700 transition w-full mt-2"> 
+            <i class="fas fa-undo-alt ml-2"></i> حذف بن 
+          </button> 
+          <button id="toggleAdminButton" class="bg-yellow-800 text-white p-2 rounded-lg hover:bg-yellow-900 transition w-full mt-2"> 
+            <i class="fas fa-user-shield ml-2"></i> تغییر وضعیت ادمین 
+          </button> 
+          <button id="toggleActiveButton" class="bg-purple-800 text-white p-2 rounded-lg hover:bg-purple-900 transition w-full mt-2"> 
+            <i class="fas fa-power-off ml-2"></i> فعال/غیرفعال کردن 
+          </button> 
+          <button id="deleteButton" class="bg-red-800 text-white p-2 rounded-lg hover:bg-red-900 transition w-full mt-4"> 
+            <i class="fas fa-trash-alt ml-2"></i> حذف کاربر (غیرقابل بازگشت) 
+          </button> 
+        </div> 
+      </div> 
+    </div> 
+    <!-- لیست کاربران اخیر --> 
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"> 
+      <h2 class="text-xl font-bold mb-4 flex items-center"><i class="fas fa-table ml-2"></i> لیست کاربران اخیر (<span id="userCount">...</span>)</h2> 
+      <div class="overflow-x-auto"> 
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"> 
+          <thead class="bg-gray-50 dark:bg-gray-700"> 
+            <tr> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID / نام</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">سکه</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">سطح / شغل</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">تاریخ ساخت</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">آخرین ورود</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">وضعیت</th> 
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">عملیات</th> 
+            </tr> 
+          </thead> 
+          <tbody id="userListBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"> 
+            <tr><td colspan="7" class="p-4 text-center text-gray-500 dark:text-gray-400">درحال بارگذاری...</td></tr> 
+          </tbody> 
+        </table> 
+      </div> 
+      <div class="flex justify-between items-center mt-4"> 
+        <div id="pageInfo" class="text-sm text-gray-600 dark:text-gray-400"></div> 
+        <div> 
+          <button id="prevPageButton" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition" disabled> قبلی </button> 
+          <button id="nextPageButton" class="px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition mr-2" disabled> بعدی </button> 
+        </div> 
+      </div> 
+    </div> 
+  </div> 
+  <div id="modalContainer" class="hidden"></div> 
+  <script> 
+    const API_BASE = window.location.origin; 
+    let currentPage = 1; 
+    const limit = 20; 
+    let currentUserData = null; 
 
-      <!-- بخش گنج‌ها -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mt-8">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold flex items-center gap-2">
-            <i class="fas fa-gem text-purple-500"></i>
-            مدیریت گنج‌ها
-          </h2>
-          <button onclick="showAddTreasureModal()" 
-                  class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:opacity-90">
-            <i class="fas fa-plus ml-2"></i> افزودن گنج جدید
-          </button>
-        </div>
-        
-        <div id="treasuresList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- گنج‌ها در اینجا نمایش داده می‌شوند -->
-        </div>
-      </div>
-
-      <!-- آمار پیشرفته -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <!-- آمار روزانه -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <h3 class="text-lg font-bold mb-4">📊 آمار روزانه</h3>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="text-sm">کاربران جدید امروز</span>
-                <span id="newToday" class="font-bold">0</span>
-              </div>
-              <div class="progress-bar">
-                <div id="newUsersProgress" class="progress-fill" style="width: 0%"></div>
-              </div>
-            </div>
-            
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="text-sm">چت‌های امروز</span>
-                <span id="chatsToday" class="font-bold">0</span>
-              </div>
-              <div class="progress-bar">
-                <div id="chatsProgress" class="progress-fill" style="width: 0%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- توزیع کاربران -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <h3 class="text-lg font-bold mb-4">📈 توزیع کاربران</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span>کاربران سطح ۱-۱۰</span>
-              <span id="usersLevel1_10" class="font-bold">0</span>
-            </div>
-            <div class="flex justify-between">
-              <span>کاربران سطح ۱۱-۲۰</span>
-              <span id="usersLevel11_20" class="font-bold">0</span>
-            </div>
-            <div class="flex justify-between">
-              <span>کاربران سطح ۲۱+</span>
-              <span id="usersLevel21+" class="font-bold">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="mt-12 py-6 border-t dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-        <p>پنل مدیریت پیشرفته بازی • نسخه ۲.۰ • توسعه داده شده با ❤️</p>
-        <p class="text-sm mt-2">© ۲۰۲۴ - تمامی حقوق محفوظ است</p>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Container برای Modal ها -->
-  <div id="modalContainer" class="hidden"></div>
-
-  <!-- Container برای Notifications -->
-  <div id="notificationContainer"></div>
-
-  <script>
-    // =================================================================
-    // تنظیمات و متغیرهای اصلی
-    // =================================================================
-    const API_BASE = window.location.origin;
-    let currentPage = 1;
-    let currentPageSize = 50;
-    let totalUsers = 0;
-    let totalPages = 1;
-    let adminToken = null;
-    let currentFilter = null;
-    let currentSearch = '';
-    let currentViewMode = 'expanded';
-    let currentListView = 'list';
-    let usersData = [];
-
-    // =================================================================
-    // توابع اصلی
-    // =================================================================
-
-    // احراز هویت
-    async function authenticate() {
-      const password = document.getElementById('adminPassword').value;
-      if (!password) {
-        showNotification('لطفاً رمز عبور وارد کنید', 'error');
-        document.getElementById('authError').classList.remove('hidden');
-        return;
-      }
-
-      try {
-        const response = await fetch(API_BASE + '/admin_auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          adminToken = data.token;
-          document.getElementById('authOverlay').style.display = 'none';
-          document.getElementById('mainPanel').classList.remove('hidden');
-          loadStats();
-          loadUsers();
-          loadTreasures();
-          showNotification('خوش آمدید! احراز هویت موفق بود.', 'success');
-        } else {
-          showNotification('رمز عبور نادرست است', 'error');
-          document.getElementById('authError').classList.remove('hidden');
-          document.getElementById('adminPassword').classList.add('shake');
-          setTimeout(() => {
-            document.getElementById('adminPassword').classList.remove('shake');
-          }, 500);
-        }
-      } catch (error) {
-        showNotification('خطا در ارتباط با سرور', 'error');
-      }
-    }
-
-    // بارگذاری آمار
-    async function loadStats() {
-      try {
-        const response = await fetch(API_BASE + '/stats');
-        const data = await response.json();
-        
-        if (data.success) {
-          const stats = data.stats;
-          
-          // آپدیت کارت‌های آمار
-          document.getElementById('totalUsers').textContent = formatNumber(stats.total_users);
-          document.getElementById('totalCoins').textContent = formatNumber(stats.total_coins);
-          document.getElementById('totalGems').textContent = formatNumber(stats.total_gems || 0);
-          document.getElementById('bannedNow').textContent = formatNumber(stats.banned_now);
-          document.getElementById('totalAdmins').textContent = formatNumber(stats.total_admins);
-          document.getElementById('activeUsers').textContent = formatNumber(stats.active_users);
-          document.getElementById('newToday').textContent = formatNumber(stats.new_today || 0);
-          
-          // محاسبه درصد کاربران فعال
-          const activePercent = stats.total_users > 0 ? (stats.active_users / stats.total_users) * 100 : 0;
-          document.getElementById('activeUsersProgress').style.width = `${activePercent}%`;
-          
-          // آپدیت دیگر آمار
-          document.getElementById('chatsToday').textContent = '0'; // می‌تواند از API دیگر گرفته شود
-          
-          // توزیع سطح کاربران (نمونه)
-          document.getElementById('usersLevel1_10').textContent = formatNumber(Math.floor(stats.total_users * 0.6));
-          document.getElementById('usersLevel11_20').textContent = formatNumber(Math.floor(stats.total_users * 0.3));
-          document.getElementById('usersLevel21+').textContent = formatNumber(Math.floor(stats.total_users * 0.1));
-        }
-      } catch (error) {
-        console.error('Error loading stats:', error);
-      }
-    }
-
-    // بارگذاری کاربران
-    async function loadUsers() {
-      const usersList = document.getElementById('usersList');
-      usersList.innerHTML = `
-        <div class="text-center py-12 text-gray-500">
-          <div class="loading-spinner mx-auto"></div>
-          <p class="mt-4">در حال بارگذاری کاربران...</p>
-        </div>
-      `;
-
-      try {
-        let url;
-        if (currentPageSize === 'all') {
-          url = `${API_BASE}/get_all_users_for_bulk`;
-        } else {
-          url = `${API_BASE}/all_users?page=${currentPage}&limit=${currentPageSize}`;
-        }
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.success) {
-          usersData = data.users;
-          totalUsers = data.total || data.users.length;
-          totalPages = Math.ceil(totalUsers / currentPageSize);
-          
-          updateUsersDisplay();
-          updatePagination();
-        } else {
-          showNotification('خطا در بارگذاری کاربران', 'error');
-        }
-      } catch (error) {
-        showNotification('خطا در اتصال به سرور', 'error');
-        console.error('Error loading users:', error);
-      }
-    }
-
-    // به‌روزرسانی نمایش کاربران
-    function updateUsersDisplay() {
-      const usersList = document.getElementById('usersList');
-      const usersCount = document.getElementById('usersCount');
-      
-      usersCount.textContent = formatNumber(usersData.length);
-      
-      if (usersData.length === 0) {
-        usersList.innerHTML = `
-          <div class="text-center py-16 text-gray-500">
-            <i class="fas fa-users-slash text-5xl mb-4"></i>
-            <p class="text-lg">کاربری یافت نشد</p>
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-      const now = Math.floor(Date.now() / 1000);
-
-      usersData.forEach(user => {
-        const isBanned = user.ban_until > now;
-        const isAdmin = user.is_admin;
-        const isActive = user.active;
-        
-        // فیلتر کردن بر اساس جستجو
-        if (currentSearch && !user.name.toLowerCase().includes(currentSearch.toLowerCase()) && 
-            !user.id.toLowerCase().includes(currentSearch.toLowerCase()) &&
-            !user.job.toLowerCase().includes(currentSearch.toLowerCase())) {
-          return;
-        }
-        
-        // فیلتر کردن بر اساس وضعیت
-        if (currentFilter === 'banned' && !isBanned) return;
-        if (currentFilter === 'active' && !isActive) return;
-        if (currentFilter === 'admin' && !isAdmin) return;
-
-        // محاسبه زمان بن باقی‌مانده
-        let banTimeRemaining = '';
-        if (isBanned) {
-          const remaining = user.ban_until - now;
-          const hours = Math.floor(remaining / 3600);
-          const minutes = Math.floor((remaining % 3600) / 60);
-          banTimeRemaining = `${hours} ساعت و ${minutes} دقیقه`;
-        }
-
-        // ساخت کارت کاربر
-        html += `
-          <div class="user-card ${currentViewMode === 'compact' ? 'compact-mode' : 'expanded-mode'}">
-            <div class="flex justify-between items-start">
-              <!-- اطلاعات کاربر -->
-              <div class="flex-1">
-                <div class="flex items-center gap-3">
-                  <div class="relative">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                      ${user.name.charAt(0)}
-                    </div>
-                    ${isAdmin ? '<span class="tag admin absolute -top-1 -right-1">👑</span>' : ''}
-                    ${isBanned ? '<span class="tag banned absolute -bottom-1 -right-1">🔨</span>' : ''}
-                  </div>
-                  
-                  <div>
-                    <h3 class="font-bold text-lg">${user.name}</h3>
-                    <p class="text-sm text-gray-500 font-mono">${user.id}</p>
-                    <div class="flex gap-2 mt-1">
-                      ${isActive ? '<span class="tag active">فعال</span>' : '<span class="tag banned">غیرفعال</span>'}
-                      ${isAdmin ? '<span class="tag admin">ادمین</span>' : ''}
-                      ${isBanned ? '<span class="tag banned">بن شده</span>' : ''}
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- جزئیات (در حالت expanded) -->
-                <div class="details mt-4">
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <p class="text-sm text-gray-500">سطح/شغل</p>
-                      <p class="font-semibold">سطح ${user.level} • ${user.job}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500">تاریخ ایجاد</p>
-                      <p class="font-semibold">${formatDate(user.created_at)}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500">آخرین ورود</p>
-                      <p class="font-semibold">${formatDate(user.last_login)}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500">کد دعوت</p>
-                      <p class="font-semibold font-mono">${user.referral_code || '-'}</p>
-                    </div>
-                  </div>
-                  
-                  ${isBanned ? `
-                    <div class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                      <p class="text-sm text-red-600 dark:text-red-400 font-semibold">
-                        <i class="fas fa-ban ml-1"></i> کاربر بن شده است
-                      </p>
-                      <p class="text-xs text-red-500 dark:text-red-300 mt-1">
-                        زمان باقی‌مانده: ${banTimeRemaining}
-                      </p>
-                    </div>
-                  ` : ''}
-                </div>
-              </div>
-              
-              <!-- ارز و عملیات -->
-              <div class="text-right">
-                <!-- ارز -->
-                <div class="mb-4">
-                  <div class="flex items-center justify-end gap-2 mb-1">
-                    <span class="text-yellow-600 dark:text-yellow-400 font-bold text-xl">
-                      ${formatNumber(user.coins)}
-                    </span>
-                    <i class="fas fa-coins text-yellow-500"></i>
-                  </div>
-                  <div class="flex items-center justify-end gap-2">
-                    <span class="gem-badge">
-                      <i class="fas fa-gem"></i>
-                      ${user.gem || 0}
-                    </span>
-                  </div>
-                </div>
-                
-                <!-- دکمه‌های عملیات -->
-                <div class="flex flex-wrap gap-2 justify-end">
-                  <button onclick="viewUserDetails('${user.id}')" 
-                          class="px-3 py-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition">
-                    <i class="fas fa-eye ml-1"></i>
-                    <span class="hidden md:inline">مشاهده</span>
-                  </button>
-                  
-                  <button onclick="showBanModal('${user.id}', '${user.name}')" 
-                          class="px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 transition">
-                    <i class="fas fa-ban ml-1"></i>
-                    <span class="hidden md:inline">بن</span>
-                  </button>
-                  
-                  <div class="dropdown">
-                    <button class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                      <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    <div class="dropdown-content mt-1 rounded-lg shadow-lg">
-                      <button onclick="editUser('${user.id}')" 
-                              class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        <i class="fas fa-edit ml-2"></i> ویرایش
-                      </button>
-                      <button onclick="toggleAdminStatus('${user.id}', ${isAdmin})" 
-                              class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        <i class="fas fa-user-shield ml-2"></i> ${isAdmin ? 'حذف ادمین' : 'اعطای ادمین'}
-                      </button>
-                      <button onclick="deleteUser('${user.id}', '${user.name}')" 
-                              class="w-full text-right px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
-                        <i class="fas fa-trash ml-2"></i> حذف
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-
-      usersList.innerHTML = html;
-    }
-
-    // =================================================================
-    // توابع Modal
-    // =================================================================
-
-    // Modal تبدیل ارز
-    function showConvertCurrencyModal() {
-      const modalHTML = `
-        <div class="modal-overlay" onclick="closeModal(event)">
-          <div class="modal-content max-w-md" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">💰 تبدیل ارز</h3>
-              <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block mb-2 font-medium">شناسه کاربر</label>
-                <input id="convertUserId" type="text" 
-                       placeholder="مثال: abc123def456"
-                       class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
-              </div>
-              
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block mb-2 font-medium">از</label>
-                  <select id="convertFrom" class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-                    <option value="coins">سکه</option>
-                    <option value="gem">جم</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block mb-2 font-medium">به</label>
-                  <select id="convertTo" class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-                    <option value="gem">جم</option>
-                    <option value="coins">سکه</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <label class="block mb-2 font-medium">مقدار</label>
-                <input id="convertAmount" type="number" min="1" 
-                       placeholder="مقدار را وارد کنید"
-                       class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
-                
-                <div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p class="text-sm text-blue-600 dark:text-blue-400 font-semibold">
-                    <i class="fas fa-info-circle ml-1"></i> نرخ تبدیل
-                  </p>
-                  <p class="text-sm text-blue-500 dark:text-blue-300 mt-1">
-                    هر 1000 سکه = 1 جم
-                  </p>
-                  <p class="text-sm text-blue-500 dark:text-blue-300">
-                    هر 1 جم = 800 سکه
-                  </p>
-                </div>
-              </div>
-              
-              <div class="flex gap-3 pt-4">
-                <button onclick="performConvert()" 
-                        class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-lg hover:opacity-90 font-semibold">
-                  <i class="fas fa-exchange-alt ml-2"></i> تبدیل
-                </button>
-                <button onclick="closeModal()" 
-                        class="flex-1 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 font-semibold">
-                  انصراف
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('modalContainer').innerHTML = modalHTML;
-      document.getElementById('modalContainer').classList.remove('hidden');
-    }
-
-    // اجرای تبدیل ارز
-    async function performConvert() {
-      const userId = document.getElementById('convertUserId').value;
-      const from = document.getElementById('convertFrom').value;
-      const to = document.getElementById('convertTo').value;
-      const amount = parseInt(document.getElementById('convertAmount').value);
-      
-      if (!userId || !amount || amount < 1) {
-        showNotification('لطفاً همه فیلدها را به درستی پر کنید', 'error');
-        return;
-      }
-      
-      try {
-        const response = await fetch(API_BASE + '/convert_currency', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: userId, from, to, amount })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          showNotification('تبدیل با موفقیت انجام شد', 'success');
-          closeModal();
-          loadStats();
-        } else {
-          const error = await response.json();
-          showNotification(error.error || 'خطا در تبدیل', 'error');
-        }
-      } catch (error) {
-        showNotification('خطا در ارتباط با سرور', 'error');
-      }
-    }
-
-    // Modal جستجوی شغل
-    function showJobSearchModal() {
-      const modalHTML = `
-        <div class="modal-overlay" onclick="closeModal(event)">
-          <div class="modal-content max-w-2xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">👔 جستجوی کاربران بر اساس شغل</h3>
-              <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div class="mb-6">
-              <input id="jobSearchInput" type="text" 
-                     placeholder="نام شغل را وارد کنید (مثال: کشاورز، معدنچی، جنگجو)"
-                     class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-green-500"
-                     oninput="searchByJob(this.value)">
-            </div>
-            
-            <div id="jobResults" class="max-h-96 overflow-y-auto">
-              <div class="text-center py-12 text-gray-500">
-                <i class="fas fa-search text-4xl mb-4"></i>
-                <p>لطفاً شغل مورد نظر خود را وارد کنید</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('modalContainer').innerHTML = modalHTML;
-      document.getElementById('modalContainer').classList.remove('hidden');
-    }
-
-    // جستجوی بر اساس شغل
-    async function searchByJob(job) {
-      if (job.length < 2) {
-        document.getElementById('jobResults').innerHTML = `
-          <div class="text-center py-12 text-gray-500">
-            <p>لطفاً حداقل ۲ حرف وارد کنید</p>
-          </div>
-        `;
-        return;
-      }
-      
-      try {
-        const response = await fetch(`${API_BASE}/search_by_job?job=${encodeURIComponent(job)}`);
-        const data = await response.json();
-        
-        const resultsDiv = document.getElementById('jobResults');
-        if (data.success && data.users.length > 0) {
-          let html = '<div class="space-y-3">';
-          data.users.forEach(user => {
-            html += `
-              <div class="p-4 rounded-lg border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer" 
-                   onclick="viewUserDetails('${user.id}'); closeModal()">
-                <div class="flex justify-between items-center">
-                  <div>
-                    <h4 class="font-bold">${user.name}</h4>
-                    <p class="text-sm text-gray-500">${user.job} • سطح ${user.level}</p>
-                  </div>
-                  <div class="text-right">
-                    <div class="flex items-center gap-2">
-                      <span class="text-yellow-600">${formatNumber(user.coins)}</span>
-                      <i class="fas fa-coins text-yellow-500"></i>
-                    </div>
-                    <div class="mt-1">
-                      <span class="gem-badge text-xs">${user.gem || 0}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
-          html += '</div>';
-          resultsDiv.innerHTML = html;
-        } else {
-          resultsDiv.innerHTML = `
-            <div class="text-center py-12 text-gray-500">
-              <i class="fas fa-user-slash text-4xl mb-4"></i>
-              <p>کاربری با این شغل یافت نشد</p>
-            </div>
-          `;
-        }
-      } catch (error) {
-        console.error('Error searching by job:', error);
-      }
-    }
-
-    // Modal انتقال داده
-    function showDataTransferModal() {
-      const modalHTML = `
-        <div class="modal-overlay" onclick="closeModal(event)">
-          <div class="modal-content max-w-md" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">🔄 انتقال داده کاربر</h3>
-              <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div class="space-y-6">
-              <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                <div class="flex gap-3">
-                  <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
-                  <div>
-                    <p class="font-bold text-yellow-700 dark:text-yellow-400">هشدار!</p>
-                    <p class="text-sm text-yellow-600 dark:text-yellow-300 mt-1">
-                      تمام داده‌های کاربر مقصد با کاربر مبدأ جایگزین می‌شود.
-                      این عمل غیرقابل بازگشت است!
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="space-y-4">
-                <div>
-                  <label class="block mb-2 font-medium">شناسه کاربر مبدأ</label>
-                  <input id="transferFrom" type="text" 
-                         placeholder="شناسه کاربری که داده‌هایش منتقل می‌شود"
-                         class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-                </div>
-                
-                <div>
-                  <label class="block mb-2 font-medium">شناسه کاربر مقصد</label>
-                  <input id="transferTo" type="text" 
-                         placeholder="شناسه کاربری که داده‌ها دریافت می‌کند"
-                         class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-                </div>
-              </div>
-              
-              <div class="flex gap-3 pt-4">
-                <button onclick="performTransfer()" 
-                        class="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white p-3 rounded-lg hover:opacity-90 font-semibold">
-                  <i class="fas fa-people-arrows ml-2"></i> انتقال داده
-                </button>
-                <button onclick="closeModal()" 
-                        class="flex-1 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 font-semibold">
-                  انصراف
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('modalContainer').innerHTML = modalHTML;
-    }
-
-    // اجرای انتقال داده
-    async function performTransfer() {
-      const fromId = document.getElementById('transferFrom').value;
-      const toId = document.getElementById('transferTo').value;
-      
-      if (!fromId || !toId) {
-        showNotification('لطفاً هر دو شناسه را وارد کنید', 'error');
-        return;
-      }
-      
-      if (fromId === toId) {
-        showNotification('شناسه مبدأ و مقصد نمی‌توانند یکسان باشند', 'error');
-        return;
-      }
-      
-      if (!confirm(`آیا مطمئنید که می‌خواهید داده‌های کاربر ${fromId} را به کاربر ${toId} منتقل کنید؟\nاین عمل غیرقابل بازگشت است!`)) {
-        return;
-      }
-      
-      try {
-        const response = await fetch(API_BASE + '/transfer_user_data', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from_user_id: fromId, to_user_id: toId })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          showNotification('انتقال داده با موفقیت انجام شد', 'success');
-          closeModal();
-          loadUsers();
-        } else {
-          const error = await response.json();
-          showNotification(error.error || 'خطا در انتقال داده', 'error');
-        }
-      } catch (error) {
-        showNotification('خطا در ارتباط با سرور', 'error');
-      }
-    }
-
-    // Modal بن پیشرفته
-    function showAdvancedBulkBan() {
-      const modalHTML = `
-        <div class="modal-overlay" onclick="closeModal(event)">
-          <div class="modal-content max-w-4xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">🔨 بن پیشرفته (دسته‌جمعی)</h3>
-              <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div>
-                <label class="block mb-2 font-medium">مدت زمان (دقیقه)</label>
-                <input id="bulkBanMinutes" type="number" min="1" 
-                       value="60" class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-              </div>
-              
-              <div>
-                <label class="block mb-2 font-medium">شناسه بن‌کننده</label>
-                <input id="bannedById" type="text" 
-                       placeholder="شناسه ادمین"
-                       class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-              </div>
-              
-              <div class="flex items-end">
-                <button onclick="selectAllUsersForBan()" 
-                        class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">
-                  <i class="fas fa-check-double ml-2"></i> انتخاب همه
-                </button>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <div class="flex justify-between items-center mb-3">
-                <span class="font-medium">لیست کاربران</span>
-                <span id="selectedCount" class="text-sm text-gray-500">0 کاربر انتخاب شده</span>
-              </div>
-              
-              <div class="max-h-96 overflow-y-auto border rounded-lg p-2">
-                <div id="bulkBanList" class="space-y-2">
-                  <!-- لیست کاربران در اینجا بارگذاری می‌شود -->
-                </div>
-              </div>
-            </div>
-            
-            <div class="flex justify-between items-center pt-4 border-t">
-              <div id="bulkBanSummary" class="text-sm text-gray-600">
-                آماده اعمال بن...
-              </div>
-              
-              <div class="flex gap-3">
-                <button onclick="performAdvancedBulkBan()" 
-                        class="btn-danger px-6 py-3 rounded-lg font-semibold">
-                  <i class="fas fa-hammer ml-2"></i> اعمال بن دسته‌جمعی
-                </button>
-                <button onclick="closeModal()" 
-                        class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-semibold">
-                  انصراف
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('modalContainer').innerHTML = modalHTML;
-      document.getElementById('modalContainer').classList.remove('hidden');
-      
-      // بارگذاری لیست کاربران برای بن
-      loadBulkBanList();
-    }
-
-    // بارگذاری لیست کاربران برای بن
-    async function loadBulkBanList() {
-      try {
-        const response = await fetch(API_BASE + '/get_all_users_for_bulk');
-        const data = await response.json();
-        
-        if (data.success) {
-          let html = '';
-          data.users.slice(0, 100).forEach(user => { // محدود به ۱۰۰ کاربر
-            const isBanned = user.ban_until > Math.floor(Date.now() / 1000);
-            
-            html += `
-              <div class="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
-                <input type="checkbox" 
-                       class="bulk-ban-checkbox h-5 w-5 ml-3"
-                       value="${user.id}"
-                       ${isBanned ? 'disabled' : ''}>
-                
-                <div class="flex-1">
-                  <div class="flex justify-between items-center">
-                    <div>
-                      <span class="font-medium">${user.name}</span>
-                      <span class="text-xs text-gray-500 font-mono mr-2">(${user.id})</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <span class="text-yellow-600">${formatNumber(user.coins)}</span>
-                      ${user.gem ? `<span class="gem-badge text-xs">${user.gem}</span>` : ''}
-                      ${isBanned ? '<span class="tag banned text-xs">بن شده</span>' : ''}
-                    </div>
-                  </div>
-                  <p class="text-sm text-gray-500 mt-1">${user.job} • سطح ${user.level}</p>
-                </div>
-              </div>
-            `;
-          });
-          
-          document.getElementById('bulkBanList').innerHTML = html;
-          updateBulkBanSelection();
-          
-          // اضافه کردن event listener به checkbox ها
-          document.querySelectorAll('.bulk-ban-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', updateBulkBanSelection);
-          });
-        }
-      } catch (error) {
-        console.error('Error loading bulk ban list:', error);
-      }
-    }
-
-    // به‌روزرسانی انتخاب بن
-    function updateBulkBanSelection() {
-      const checkboxes = document.querySelectorAll('.bulk-ban-checkbox:checked:not(:disabled)');
-      const selectedCount = checkboxes.length;
-      
-      document.getElementById('selectedCount').textContent = `${selectedCount} کاربر انتخاب شده`;
-      
-      const minutes = parseInt(document.getElementById('bulkBanMinutes').value) || 60;
-      const bannedBy = document.getElementById('bannedById').value || 'مدیر سیستم';
-      
-      document.getElementById('bulkBanSummary').innerHTML = `
-        ${selectedCount} کاربر انتخاب شده •
-        مدت بن: ${minutes} دقیقه •
-        بن‌کننده: ${bannedBy}
-      `;
-    }
-
-    // انتخاب همه کاربران برای بن
-    function selectAllUsersForBan() {
-      document.querySelectorAll('.bulk-ban-checkbox:not(:disabled)').forEach(checkbox => {
-        checkbox.checked = true;
-      });
-      updateBulkBanSelection();
-    }
-
-    // اجرای بن پیشرفته
-    async function performAdvancedBulkBan() {
-      const minutes = parseInt(document.getElementById('bulkBanMinutes').value);
-      const bannedBy = document.getElementById('bannedById').value;
-      
-      if (!minutes || minutes < 1) {
-        showNotification('لطفاً مدت زمان بن معتبر وارد کنید', 'error');
-        return;
-      }
-      
-      if (!bannedBy) {
-        showNotification('لطفاً شناسه بن‌کننده را وارد کنید', 'error');
-        return;
-      }
-      
-      const checkboxes = document.querySelectorAll('.bulk-ban-checkbox:checked:not(:disabled)');
-      if (checkboxes.length === 0) {
-        showNotification('لطفاً حداقل یک کاربر انتخاب کنید', 'error');
-        return;
-      }
-      
-      const user_ids = Array.from(checkboxes).map(cb => cb.value);
-      
-      if (!confirm(`آیا مطمئنید که می‌خواهید ${user_ids.length} کاربر را برای ${minutes} دقیقه بن کنید؟`)) {
-        return;
-      }
-      
-      try {
-        const response = await fetch(API_BASE + '/advanced_bulk_ban', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            user_ids, 
-            duration_minutes: minutes, 
-            banned_by: bannedBy 
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          showNotification(data.message, 'success');
-          closeModal();
-          loadStats();
-          loadUsers();
-        } else {
-          const error = await response.json();
-          showNotification(error.error || 'خطا در بن دسته‌جمعی', 'error');
-        }
-      } catch (error) {
-        showNotification('خطا در ارتباط با سرور', 'error');
-      }
-    }
-
-    // Modal مشاهده جزئیات کاربر
-    async function viewUserDetails(userId) {
-      try {
-        const response = await fetch(`${API_BASE}/user?id=${userId}&skip_login_update=1`);
-        const data = await response.json();
-        
-        if (data.success) {
-          const user = data.user;
-          const now = Math.floor(Date.now() / 1000);
-          const isBanned = user.ban_until > now;
-          
-          let banInfo = '';
-          if (isBanned) {
-            const remaining = user.ban_until - now;
-            const hours = Math.floor(remaining / 3600);
-            const minutes = Math.floor((remaining % 3600) / 60);
-            banInfo = `
-              <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <p class="font-bold text-red-600 dark:text-red-400">
-                  <i class="fas fa-ban ml-1"></i> کاربر بن شده است
-                </p>
-                <p class="text-sm text-red-500 dark:text-red-300 mt-1">
-                  بن تا: ${user.ban_date}
-                </p>
-                <p class="text-sm text-red-500 dark:text-red-300">
-                  زمان باقی‌مانده: ${hours} ساعت و ${minutes} دقیقه
-                </p>
-              </div>
-            `;
-          }
-          
-          // گرفتن تاریخچه بن
-          let banHistory = '';
-          try {
-            const historyResponse = await fetch(`${API_BASE}/get_ban_history?user_id=${userId}`);
-            const historyData = await historyResponse.json();
-            
-            if (historyData.success && historyData.history.length > 0) {
-              banHistory = `
-                <div class="mt-6">
-                  <h4 class="font-bold mb-3">📜 تاریخچه بن</h4>
-                  <div class="space-y-2 max-h-48 overflow-y-auto">
-                    ${historyData.history.map(ban => `
-                      <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div class="flex justify-between items-center">
-                          <span class="text-sm font-medium">بن‌کننده: ${ban.banned_by}</span>
-                          <span class="text-xs text-gray-500">${formatDate(ban.created_at)}</span>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">
-                          مدت: ${ban.duration_minutes} دقیقه
-                        </p>
-                      </div>
-                    `).join('')}
-                  </div>
-                </div>
-              `;
-            }
-          } catch (e) {
-            console.error('Error loading ban history:', e);
-          }
-          
-          const modalHTML = `
-            <div class="modal-overlay" onclick="closeModal(event)">
-              <div class="modal-content max-w-3xl" onclick="event.stopPropagation()">
-                <div class="flex justify-between items-center mb-6">
-                  <div class="flex items-center gap-3">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                      ${user.name.charAt(0)}
-                    </div>
-                    <div>
-                      <h3 class="text-2xl font-bold">${user.name}</h3>
-                      <p class="text-gray-500 font-mono">${user.id}</p>
-                    </div>
-                  </div>
-                  <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                  </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <!-- اطلاعات اصلی -->
-                  <div>
-                    <h4 class="font-bold mb-3">📋 اطلاعات اصلی</h4>
-                    <div class="space-y-3">
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">سکه:</span>
-                        <span class="font-bold">${formatNumber(user.coins)}</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">جم:</span>
-                        <span class="font-bold gem-badge">${user.gem || 0}</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">شغل:</span>
-                        <span class="font-bold">${user.job}</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">سطح:</span>
-                        <span class="font-bold">${user.level}</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">تجربه:</span>
-                        <span class="font-bold">${formatNumber(user.experience)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- اطلاعات حساب -->
-                  <div>
-                    <h4 class="font-bold mb-3">👤 اطلاعات حساب</h4>
-                    <div class="space-y-3">
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">وضعیت:</span>
-                        <span class="${user.active ? 'text-green-600' : 'text-red-600'} font-bold">
-                          ${user.active ? 'فعال' : 'غیرفعال'}
-                        </span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">نقش:</span>
-                        <span class="${user.is_admin ? 'text-purple-600' : 'text-gray-600'} font-bold">
-                          ${user.is_admin ? 'ادمین' : 'کاربر عادی'}
-                        </span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">کد دعوت:</span>
-                        <span class="font-mono font-bold">${user.referral_code || '-'}</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">تاریخ ایجاد:</span>
-                        <span class="font-bold">${formatDate(user.created_at)}</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span class="text-gray-500">آخرین ورود:</span>
-                        <span class="font-bold">${formatDate(user.last_login)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                ${banInfo}
-                ${banHistory}
-                
-                <!-- تاریخچه نام‌ها -->
-                <div class="mt-6">
-                  <h4 class="font-bold mb-3">📛 تاریخچه نام‌ها</h4>
-                  <div class="space-y-2 max-h-48 overflow-y-auto">
-                    ${user.name_history && user.name_history.length > 0 ? 
-                      user.name_history.map(name => `
-                        <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                          <div class="flex justify-between items-center">
-                            <span class="font-medium">${name.name}</span>
-                            <span class="text-xs text-gray-500">${formatISODate(name.timestamp)}</span>
-                          </div>
-                        </div>
-                      `).join('') :
-                      '<p class="text-gray-500 text-center py-4">هیچ تاریخچه‌ای ثبت نشده است</p>'
-                    }
-                  </div>
-                </div>
-                
-                <!-- دکمه‌های عملیات -->
-                <div class="flex gap-3 mt-8 pt-6 border-t">
-                  <button onclick="editUser('${user.id}')" 
-                          class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">
-                    <i class="fas fa-edit ml-2"></i> ویرایش کاربر
-                  </button>
-                  <button onclick="showBanModal('${user.id}', '${user.name}')" 
-                          class="flex-1 ${isBanned ? 'bg-green-600 hover:bg-green-700' : 'btn-danger'} text-white p-3 rounded-lg">
-                    <i class="fas ${isBanned ? 'fa-unlock' : 'fa-ban'} ml-2"></i>
-                    ${isBanned ? 'حذف بن' : 'بن کردن'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-          
-          document.getElementById('modalContainer').innerHTML = modalHTML;
-          document.getElementById('modalContainer').classList.remove('hidden');
-        }
-      } catch (error) {
-        showNotification('خطا در دریافت اطلاعات کاربر', 'error');
-      }
-    }
-
-    // Modal بن کردن کاربر
-    function showBanModal(userId, userName) {
-      const modalHTML = `
-        <div class="modal-overlay" onclick="closeModal(event)">
-          <div class="modal-content max-w-md" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold">🔨 بن کردن کاربر</h3>
-              <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div class="mb-6">
-              <p class="text-gray-600 dark:text-gray-400">
-                کاربر: <span class="font-bold">${userName}</span>
-              </p>
-              <p class="text-sm text-gray-500 mt-1">شناسه: ${userId}</p>
-            </div>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block mb-2 font-medium">مدت زمان بن (دقیقه)</label>
-                <input id="banMinutes" type="number" min="0" 
-                       value="60" class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-                <p class="text-xs text-gray-500 mt-1">برای حذف بن، عدد 0 وارد کنید</p>
-              </div>
-              
-              <div>
-                <label class="block mb-2 font-medium">شناسه بن‌کننده (اختیاری)</label>
-                <input id="bannedBy" type="text" 
-                       placeholder="شناسه ادمین"
-                       class="w-full p-3 rounded-lg border dark:border-gray-600 dark:bg-gray-700">
-              </div>
-              
-              <div class="grid grid-cols-3 gap-2 mt-4">
-                <button onclick="setBanTime(15)" class="p-2 bg-gray-100 dark:bg-gray-700 rounded">
-                  15 دقیقه
-                </button>
-                <button onclick="setBanTime(60)" class="p-2 bg-gray-100 dark:bg-gray-700 rounded">
-                  1 ساعت
-                </button>
-                <button onclick="setBanTime(1440)" class="p-2 bg-gray-100 dark:bg-gray-700 rounded">
-                  1 روز
-                </button>
-              </div>
-            </div>
-            
-            <div class="flex gap-3 mt-8">
-              <button onclick="performBan('${userId}')" 
-                      class="flex-1 btn-danger p-3 rounded-lg font-semibold">
-                <i class="fas fa-hammer ml-2"></i> اعمال بن
-              </button>
-              <button onclick="closeModal()" 
-                      class="flex-1 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 font-semibold">
-                انصراف
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('modalContainer').innerHTML = modalHTML;
-      document.getElementById('modalContainer').classList.remove('hidden');
-    }
-
-    // تنظیم زمان بن
-    function setBanTime(minutes) {
-      document.getElementById('banMinutes').value = minutes;
-    }
-
-    // اجرای بن
-    async function performBan(userId) {
-      const minutes = parseInt(document.getElementById('banMinutes').value);
-      const bannedBy = document.getElementById('bannedBy').value || 'مدیر سیستم';
-      
-      if (isNaN(minutes) || minutes < 0) {
-        showNotification('لطفاً زمان بن معتبر وارد کنید', 'error');
-        return;
-      }
-      
-      const action = minutes === 0 ? 'حذف بن' : `بن برای ${minutes} دقیقه`;
-      if (!confirm(`آیا مطمئنید که می‌خواهید ${action} را انجام دهید؟`)) {
-        return;
-      }
-      
-      try {
-        const response = await fetch(API_BASE + '/ban', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            id: userId, 
-            duration_minutes: minutes,
-            banned_by: bannedBy
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          showNotification(minutes === 0 ? 'بن کاربر حذف شد' : 'کاربر با موفقیت بن شد', 'success');
-          closeModal();
-          loadStats();
-          loadUsers();
-        } else {
-          const error = await response.json();
-          showNotification(error.error || 'خطا در بن کردن', 'error');
-        }
-      } catch (error) {
-        showNotification('خطا در ارتباط با سرور', 'error');
-      }
-    }
-
-    // =================================================================
-    // توابع کمکی
-    // =================================================================
-
-    // فرمت اعداد
-    function formatNumber(num) {
-      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    // فرمت تاریخ Unix
-    function formatDate(timestamp) {
-      if (!timestamp || timestamp === 0) return '---';
-      const date = new Date(timestamp * 1000);
-      return date.toLocaleDateString('fa-IR');
-    }
-
-    // فرمت تاریخ ISO
-    function formatISODate(isoString) {
-      if (!isoString) return '---';
-      const date = new Date(isoString);
-      return date.toLocaleDateString('fa-IR') + ' ' + date.toLocaleTimeString('fa-IR');
-    }
-
-    // نمایش نوتیفیکیشن
-    function showNotification(message, type = 'success') {
-      const container = document.getElementById('notificationContainer');
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      notification.innerHTML = `
-        <div class="flex items-center gap-3">
-          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-          <p>${message}</p>
-        </div>
-        <button onclick="this.parentElement.remove()" class="absolute left-3 top-1/2 transform -translate-y-1/2">
-          <i class="fas fa-times"></i>
-        </button>
-      `;
-      
-      container.appendChild(notification);
-      setTimeout(() => {
-        if (notification.parentElement) {
-          notification.remove();
-        }
-      }, 5000);
-    }
-
-    // بستن Modal
-    function closeModal(event) {
-      if (event && event.target.classList.contains('modal-overlay')) {
-        document.getElementById('modalContainer').classList.add('hidden');
-        document.getElementById('modalContainer').innerHTML = '';
-      } else if (!event) {
-        document.getElementById('modalContainer').classList.add('hidden');
-        document.getElementById('modalContainer').innerHTML = '';
-      }
-    }
-
-    // تغییر حالت نمایش
-    function setViewMode(mode) {
-      currentViewMode = mode;
-      const usersContainer = document.getElementById('usersContainer');
-      usersContainer.classList.remove('compact-mode', 'expanded-mode');
-      usersContainer.classList.add(mode === 'compact' ? 'compact-mode' : 'expanded-mode');
-      
-      // آپدیت دکمه‌ها
-      document.getElementById('btnCompact').classList.toggle('selected', mode === 'compact');
-      document.getElementById('btnExpanded').classList.toggle('selected', mode === 'expanded');
-      
-      updateUsersDisplay();
-    }
-
-    // تغییر نوع لیست
-    function setListView(type) {
-      currentListView = type;
-      const usersContainer = document.getElementById('usersContainer');
-      usersContainer.classList.remove('view-mode-grid', 'view-mode-list');
-      usersContainer.classList.add(type === 'grid' ? 'view-mode-grid' : 'view-mode-list');
-      
-      // نمایش/مخفی کردن هدر جدول
-      document.getElementById('tableHeader').classList.toggle('hidden', type === 'grid');
-      
-      // آپدیت دکمه‌ها
-      document.getElementById('btnGrid').classList.toggle('selected', type === 'grid');
-      document.getElementById('btnList').classList.toggle('selected', type === 'list');
-      
-      updateUsersDisplay();
-    }
-
-    // تغییر تعداد صفحات
-    function changePageSize(size) {
-      currentPageSize = size === 'all' ? 'all' : parseInt(size);
-      currentPage = 1;
-      loadUsers();
-    }
-
-    // به‌روزرسانی Pagination
-    function updatePagination() {
-      const pageInfo = document.getElementById('pageInfo');
-      const firstPageBtn = document.getElementById('firstPage');
-      const prevPageBtn = document.getElementById('prevPage');
-      const nextPageBtn = document.getElementById('nextPage');
-      const lastPageBtn = document.getElementById('lastPage');
-      const pagesContainer = document.querySelector('.flex.gap-1');
-      
-      if (currentPageSize === 'all') {
-        pageInfo.textContent = `نمایش همه کاربران (${formatNumber(totalUsers)})`;
-        firstPageBtn.disabled = true;
-        prevPageBtn.disabled = true;
-        nextPageBtn.disabled = true;
-        lastPageBtn.disabled = true;
-        pagesContainer.innerHTML = '';
-        return;
-      }
-      
-      pageInfo.textContent = `صفحه ${currentPage} از ${totalPages} • ${formatNumber(totalUsers)} کاربر`;
-      
-      // فعال/غیرفعال کردن دکمه‌ها
-      firstPageBtn.disabled = currentPage === 1;
-      prevPageBtn.disabled = currentPage === 1;
-      nextPageBtn.disabled = currentPage === totalPages;
-      lastPageBtn.disabled = currentPage === totalPages;
-      
-      // ایجاد دکمه‌های صفحات
-      pagesContainer.innerHTML = '';
-      const startPage = Math.max(1, currentPage - 2);
-      const endPage = Math.min(totalPages, startPage + 4);
-      
-      for (let i = startPage; i <= endPage; i++) {
-        const button = document.createElement('button');
-        button.className = `px-3 py-1 rounded-lg ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'}`;
-        button.textContent = i;
-        button.onclick = () => goToPage(i);
-        pagesContainer.appendChild(button);
-      }
-    }
-
-    // رفتن به صفحه مشخص
-    function goToPage(page) {
-      if (page >= 1 && page <= totalPages && page !== currentPage) {
-        currentPage = page;
-        loadUsers();
-      }
-    }
-
-    // صفحه قبلی
-    function prevPage() {
-      if (currentPage > 1) {
-        currentPage--;
-        loadUsers();
-      }
-    }
-
-    // صفحه بعدی
-    function nextPage() {
-      if (currentPage < totalPages) {
-        currentPage++;
-        loadUsers();
-      }
-    }
-
-    // فیلتر کردن کاربران
-    function filterUsers(filter) {
-      currentFilter = currentFilter === filter ? null : filter;
-      updateUsersDisplay();
-    }
-
-    // پاک کردن فیلترها
-    function clearFilters() {
-      currentFilter = null;
-      currentSearch = '';
-      document.getElementById('quickSearch').value = '';
-      updateUsersDisplay();
-    }
-
-    // جستجوی سریع
-    document.getElementById('quickSearch').addEventListener('input', function(e) {
-      currentSearch = e.target.value;
-      updateUsersDisplay();
-    });
-
-    // بارگذاری گنج‌ها
-    async function loadTreasures() {
-      try {
-        const response = await fetch(API_BASE + '/list_treasures');
-        const data = await response.json();
-        
-        if (data.success) {
-          const container = document.getElementById('treasuresList');
-          let html = '';
-          
-          data.treasures.forEach(treasure => {
-            html += `
-              <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 border border-purple-100 dark:border-gray-700">
-                <div class="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 class="font-bold text-lg">${treasure.name}</h4>
-                    <p class="text-sm text-gray-500">شناسه: ${treasure.id}</p>
-                  </div>
-                  <i class="fas fa-gem text-2xl text-purple-500"></i>
-                </div>
-                
-                <div class="space-y-3">
-                  <div class="flex justify-between items-center">
-                    <span class="text-gray-600">سکه جایزه:</span>
-                    <span class="font-bold text-yellow-600">${formatNumber(treasure.coins_reward)}</span>
-                  </div>
-                  
-                  <div class="flex justify-between items-center">
-                    <span class="text-gray-600">زمان انتظار:</span>
-                    <span class="font-bold">${treasure.timer_duration_seconds} ثانیه</span>
-                  </div>
-                  
-                  <div class="flex gap-2 mt-4">
-                    <button onclick="editTreasure(${treasure.id})" 
-                            class="flex-1 bg-blue-600 text-white p-2 rounded-lg text-sm">
-                      ویرایش
-                    </button>
-                    <button onclick="deleteTreasure(${treasure.id})" 
-                            class="flex-1 bg-red-600 text-white p-2 rounded-lg text-sm">
-                      حذف
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
-          
-          container.innerHTML = html;
-        }
-      } catch (error) {
-        console.error('Error loading treasures:', error);
-      }
-    }
-
-    // تابع‌های دیگر (مختصر شده)
-    function showAllUsers() { loadUsers(); }
-    function showTopCoins() { window.location.hash = 'top'; }
-    function showBannedUsers() { filterUsers('banned'); }
-    function showAdminList() { filterUsers('admin'); }
-    function showBanHistory() { showNotification('این قابلیت به زودی اضافه می‌شود', 'warning'); }
-    function refreshUsers() { loadUsers(); showNotification('لیست کاربران به‌روزرسانی شد', 'success'); }
-    function exportUsers() { showNotification('این قابلیت به زودی اضافه می‌شود', 'warning'); }
-    function showUserProfile() { showNotification('پروفایل مدیر', 'info'); }
-    function logout() { 
-      if (confirm('آیا از پنل مدیریت خارج می‌شوید؟')) {
-        location.reload();
-      }
-    }
-
-    // =================================================================
-    // راه‌اندازی اولیه
-    // =================================================================
-
-    // رویداد تغییر تم
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-      document.querySelector('#themeToggle i').className = document.body.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
-    });
-
-    // بارگذاری تم از localStorage
-    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.body.classList.add('dark');
-      document.querySelector('#themeToggle i').className = 'fas fa-sun';
-    }
-
-    // تابع برای اتصال enter در فیلد رمز عبور
-    document.getElementById('adminPassword').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        authenticate();
-      }
-    });
-  </script>
-</body>
-</html>
+    // ================================================================= 
+    // توابع کمکی 
+    // ================================================================= 
+    /** توگل دارک مود **/ 
+    const themeToggle = document.getElementById('themeToggle'); 
+    themeToggle.addEventListener('click', () => { 
+      document.body.classList.toggle('dark'); 
+      const isDark = document.body.classList.contains('dark'); 
+      localStorage.setItem('theme', isDark ? 'dark' : 'light'); 
+      document.querySelector('#themeToggle i').className = isDark ? 'fas fa-sun' : 'fas fa-moon'; 
+    }); 
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) { 
+      document.body.classList.add('dark'); 
+      document.querySelector('#themeToggle i').className = 'fas fa-sun'; 
+    } else { 
+      document.querySelector('#themeToggle i').className = 'fas fa-moon'; 
+    } 
+    /** نمایش پیام */ 
+    function displayMessage(message, type = 'success') { 
+      const container = document.querySelector('.container'); 
+      const alert = document.createElement('div'); 
+      let color = ''; 
+      if (type === 'success') color = 'bg-green-100 border-green-400 text-green-700'; 
+      else if (type === 'error') color = 'bg-red-100 border-red-400 text-red-700'; 
+      else color = 'bg-blue-100 border-blue-400 text-blue-700'; 
+      alert.className = 'p-4 border ' + color + ' rounded-lg mb-4 text-sm fixed top-0 left-1/2 transform -translate-x-1/2 mt-4 z-50 shadow-xl'; 
+      alert.textContent = message; 
+      container.prepend(alert); 
+      setTimeout(() => alert.remove(), 5000); 
+    } 
+    /** فرمت تاریخ Unix Timestamp */ 
+    function formatTimestamp(timestamp) { 
+      if (!timestamp || timestamp === 0) return '---'; 
+      const date = new Date(timestamp * 1000); 
+      return date.toLocaleDateString('fa-IR') + ' ' + date.toLocaleTimeString('fa-IR'); 
+    } 
+    /** فرمت تاریخ ISO String */ 
+    function formatISO(isoString) { 
+      if (!isoString) return '---'; 
+      const date = new Date(isoString); 
+      return date.toLocaleDateString('fa-IR') + ' ' + date.toLocaleTimeString('fa-IR'); 
+    } 
+    /** ایجاد Modal */ 
+    function createModal(title, contentHTML) { 
+      const modalContainer = document.getElementById('modalContainer'); 
+      modalContainer.innerHTML = ''; 
+      modalContainer.classList.remove('hidden'); 
+      const isDark = document.body.classList.contains('dark'); 
+      const modalOverlay = document.createElement('div'); 
+      modalOverlay.className = 'modal-overlay'; 
+      const modalContent = document.createElement('div'); 
+      modalContent.className = 'modal-content w-full md:w-3/4 ' + (isDark ? 'modal-dark' : 'bg-white'); 
+      modalContent.innerHTML = '<div class="flex justify-between items-center border-b pb-3 mb-4">' + 
+        '<h3 class="text-xl font-bold ' + (isDark ? 'text-white' : 'text-gray-900') + '">' + title + '</h3>' + 
+        '<button id="closeModal" class="text-gray-600 dark:text-gray-400 hover:text-red-500 transition">' + 
+          '<i class="fas fa-times text-xl"></i>' + 
+        '</button>' + 
+        '</div>' + 
+        '<div id="modalBody" class="max-h-96 overflow-y-auto">' + contentHTML + '</div>'; 
+      modalContent.querySelector('#closeModal').addEventListener('click', () => { 
+        modalContainer.classList.add('hidden'); 
+        modalContainer.innerHTML = ''; 
+      }); 
+      modalOverlay.appendChild(modalContent); 
+      modalContainer.appendChild(modalOverlay); 
+    } 
+    // ================================================================= 
+    // بارگذاری آمار 
+    // ================================================================= 
+    async function loadStats() { 
+      try { 
+        const response = await fetch(API_BASE + '/stats'); 
+        if (!response.ok) { 
+          const errorData = await response.json().catch(() => ({ error: 'خطای نامشخص Worker' })); 
+          displayMessage('خطا در بارگذاری آمار: ' + (errorData.error || 'ناشناس'), 'error'); 
+          return; 
+        } 
+        const data = await response.json(); 
+        if (data.success) { 
+          const stats = data.stats; 
+          document.getElementById('totalUsers').textContent = (stats.total_users || 0).toLocaleString('fa-IR'); 
+          document.getElementById('totalActive').textContent = (stats.active_users || 0).toLocaleString('fa-IR'); 
+          document.getElementById('newToday').textContent = (stats.new_today || 0).toLocaleString('fa-IR'); 
+          document.getElementById('totalCoins').textContent = (stats.total_coins || 0).toLocaleString('fa-IR'); 
+          document.getElementById('bannedNow').textContent = (stats.banned_now || 0).toLocaleString('fa-IR'); 
+          document.getElementById('totalAdmins').textContent = (stats.total_admins || 0).toLocaleString('fa-IR'); 
+        } else { 
+          displayMessage('خطا در بارگذاری آمار: ' + (data.error || 'ناشناس'), 'error'); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در شبکه: بارگذاری آمار ناموفق', 'error'); 
+        console.error('Error loading stats:', error); 
+      } 
+    } 
+    // ================================================================= 
+    // بارگذاری لیست گنج‌ها 
+    // ================================================================= 
+    async function loadTreasureList() { 
+      const body = document.getElementById('treasureListBody'); 
+      body.innerHTML = '<tr><td colspan="5" class="p-4 text-center"><i class="fas fa-spinner fa-spin ml-2"></i> درحال بارگذاری گنج‌ها...</td></tr>'; 
+      try { 
+        const response = await fetch(API_BASE + '/list_treasures'); 
+        if (!response.ok) { 
+          body.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">خطا در بارگذاری گنج‌ها</td></tr>'; 
+          return; 
+        } 
+        const data = await response.json(); 
+        if (data.success) { 
+          body.innerHTML = ''; 
+          data.treasures.forEach(treasure => { 
+            const row = document.createElement('tr'); 
+            row.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">' + treasure.id + '</td>' + 
+              '<td class="px-6 py-4 whitespace-nowrap">' + treasure.name + '</td>' + 
+              '<td class="px-6 py-4 whitespace-nowrap">' + 
+                '<input type="number" value="' + treasure.coins_reward + '" class="treasure-coins-input w-24 p-1 border dark:border-gray-600 dark:bg-gray-700 rounded text-right" min="1" />' + 
+              '</td>' + 
+              '<td class="px-6 py-4 whitespace-nowrap">' + 
+                '<input type="number" value="' + (treasure.timer_duration_seconds || 300) + '" class="treasure-duration-input w-24 p-1 border dark:border-gray-600 dark:bg-gray-700 rounded text-right" min="1" />' + 
+              '</td>' + 
+              '<td class="px-6 py-4 whitespace-nowrap">' + 
+                '<button data-id="' + treasure.id + '" class="update-treasure-btn bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">' + 
+                  '<i class="fas fa-save"></i> ذخیره' + 
+                '</button>' + 
+                '<button data-id="' + treasure.id + '" class="delete-treasure-btn bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 ml-2">' + 
+                  '<i class="fas fa-trash"></i> حذف' + 
+                '</button>' + 
+              '</td>'; 
+            body.appendChild(row); 
+          }); 
+          document.querySelectorAll('.update-treasure-btn').forEach(btn => { 
+            btn.addEventListener('click', async (e) => { 
+              const treasure_id = e.target.closest('button').getAttribute('data-id'); 
+              const row = e.target.closest('tr'); 
+              const coins_input = row.querySelector('.treasure-coins-input'); 
+              const duration_input = row.querySelector('.treasure-duration-input'); 
+              const coins = parseInt(coins_input.value); 
+              const duration = parseInt(duration_input.value); 
+              if (isNaN(coins) || coins < 1 || isNaN(duration) || duration < 1) { 
+                displayMessage('مقدار سکه و زمان (ثانیه) معتبر وارد کنید.', 'error'); 
+                return; 
+              } 
+              const result = await runAction('/update_treasure', 'POST', { treasure_id: treasure_id, coins_reward: coins, timer_duration_seconds: duration }); 
+              if (result.success) { 
+                displayMessage('مقدار سکه و زمان گنج به‌روزرسانی شد.'); 
+              } 
+            }); 
+          }); 
+          document.querySelectorAll('.delete-treasure-btn').forEach(btn => { 
+            btn.addEventListener('click', async (e) => { 
+              const treasure_id = e.target.closest('button').getAttribute('data-id'); 
+              if (!confirm('آیا مطمئنید که می‌خواهید گنج ' + treasure_id + ' را حذف کنید؟')) return; 
+              const result = await runAction('/delete_treasure', 'POST', { treasure_id: treasure_id }); 
+              if (result.success) { 
+                displayMessage('گنج حذف شد.'); 
+                loadTreasureList(); 
+              } 
+            }); 
+          }); 
+        } else { 
+          body.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">خطا: ' + (data.error || 'نامشخص') + '</td></tr>'; 
+        } 
+      } catch (error) { 
+        body.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">خطا در شبکه.</td></tr>'; 
+        console.error('Error loading treasures:', error); 
+      } 
+    } 
+    // ================================================================= 
+    // بارگذاری لیست کاربران 
+    // ================================================================= 
+    async function loadUserList(page = 1) { 
+      currentPage = page; 
+      const body = document.getElementById('userListBody'); 
+      body.innerHTML = '<tr><td colspan="7" class="p-4 text-center"><i class="fas fa-spinner fa-spin ml-2"></i> درحال بارگذاری کاربران...</td></tr>'; 
+      try { 
+        const response = await fetch(API_BASE + '/all_users?page=' + page + '&limit=' + limit); 
+        if (!response.ok) { 
+          const errorData = await response.json().catch(() => ({ error: 'خطای نامشخص Worker' })); 
+          body.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">خطا: ' + response.status + ' - ' + (errorData.error || 'خطای سرور') + '</td></tr>'; 
+          displayMessage('خطا در بارگذاری لیست کاربران', 'error'); 
+          return; 
+        } 
+        const data = await response.json(); 
+        if (data.success) { 
+          const users = data.users; 
+          const total = data.total; 
+          const totalPages = Math.ceil(total / limit); 
+          document.getElementById('userCount').textContent = total.toLocaleString('fa-IR'); 
+          document.getElementById('pageInfo').textContent = 'صفحه ' + page + ' از ' + totalPages + ' (کل: ' + total + ')'; 
+          document.getElementById('prevPageButton').disabled = (page <= 1); 
+          document.getElementById('nextPageButton').disabled = (page >= totalPages || totalPages === 0); 
+          body.innerHTML = ''; 
+          if (users.length === 0) { 
+            body.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 dark:text-gray-400">کاربری یافت نشد.</td></tr>'; 
+            return; 
+          } 
+          users.forEach(user => { 
+            const activeStatus = user.active ? '<span class="text-green-500">فعال</span>' : '<span class="text-red-500">غیرفعال</span>'; 
+            const adminBadge = user.is_admin ? '<span class="text-xs mr-2 p-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">ادمین</span>' : ''; 
+            const bannedBadge = user.ban_until > Math.floor(Date.now() / 1000) ? '<span class="text-xs mr-2 p-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">بن</span>' : ''; 
+            const row = document.createElement('tr'); 
+            row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer'; 
+            row.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">' + 
+              '<span class="font-bold">' + user.name + '</span>' + 
+              '<br>' + 
+              '<span class="text-xs text-gray-500 dark:text-gray-400 font-mono">' + user.id + '</span>' + 
+            '</td>' + 
+            '<td class="px-6 py-4 whitespace-nowrap">' + (user.coins || 0).toLocaleString('fa-IR') + '</td>' + 
+            '<td class="px-6 py-4 whitespace-nowrap">سطح ' + user.level + ' (' + user.job + ')</td>' + 
+            '<td class="px-6 py-4 whitespace-nowrap text-sm">' + formatTimestamp(user.created_at) + '</td>' + 
+            '<td class="px-6 py-4 whitespace-nowrap text-sm">' + formatTimestamp(user.last_login) + '</td>' + 
+            '<td class="px-6 py-4 whitespace-nowrap text-sm">' + activeStatus + ' ' + adminBadge + ' ' + bannedBadge + '</td>' + 
+            '<td class="px-6 py-4 whitespace-nowrap text-sm">' + 
+              '<button data-id="' + user.id + '" class="view-user-btn text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">' + 
+                '<i class="fas fa-eye"></i> مشاهده' + 
+              '</button>' + 
+            '</td>'; 
+            body.appendChild(row); 
+          }); 
+          document.querySelectorAll('.view-user-btn').forEach(button => { 
+            button.addEventListener('click', (e) => { 
+              const id = e.currentTarget.getAttribute('data-id'); 
+              fetchUserDetails(id); 
+            }); 
+          }); 
+        } else { 
+          body.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">خطا: ' + (data.error || 'نامشخص') + '</td></tr>'; 
+          displayMessage('خطا در بارگذاری لیست کاربران', 'error'); 
+        } 
+      } catch (error) { 
+        body.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">خطا در شبکه.</td></tr>'; 
+        displayMessage('خطا در شبکه: بارگذاری لیست کاربران ناموفق', 'error'); 
+        console.error('Error loading user list:', error); 
+      } 
+    } 
+    document.getElementById('prevPageButton').addEventListener('click', () => { 
+      if (currentPage > 1) loadUserList(currentPage - 1); 
+    }); 
+    document.getElementById('nextPageButton').addEventListener('click', () => { 
+      loadUserList(currentPage + 1); 
+    }); 
+    // ================================================================= 
+    // جستجوی پیشرفته کاربر 
+    // ================================================================= 
+    document.getElementById('searchButton').addEventListener('click', async () => { 
+      const query = document.getElementById('userSearchInput').value.trim(); 
+      if (query.length < 2) { 
+        displayMessage('حداقل 2 کاراکتر برای جستجو وارد کنید.', 'error'); 
+        return; 
+      } 
+      try { 
+        const response = await fetch(API_BASE + '/search_users?query=' + encodeURIComponent(query)); 
+        if (!response.ok) { 
+          displayMessage('خطا در جستجو', 'error'); 
+          return; 
+        } 
+        const data = await response.json(); 
+        if (data.success) { 
+          const users = data.users; 
+          const resultsDiv = document.getElementById('searchResults'); 
+          const resultsList = document.getElementById('searchResultsList'); 
+          if (users.length === 0) { 
+            resultsList.innerHTML = '<p class="text-center text-gray-500">هیچ نتیجه‌ای یافت نشد.</p>'; 
+            resultsDiv.classList.remove('hidden'); 
+            return; 
+          } 
+          resultsList.innerHTML = ''; 
+          users.forEach(user => { 
+            const userCard = document.createElement('div'); 
+            userCard.className = 'p-3 border dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition flex justify-between items-center'; 
+            const activeStatus = user.active ? '<span class="text-green-500">فعال</span>' : '<span class="text-red-500">غیرفعال</span>'; 
+            const adminBadge = user.is_admin ? '<span class="text-xs mr-2 p-1 rounded-full bg-yellow-100 text-yellow-800">ادمین</span>' : ''; 
+            const bannedBadge = user.ban_until > Math.floor(Date.now() / 1000) ? '<span class="text-xs mr-2 p-1 rounded-full bg-red-100 text-red-800">بن</span>' : ''; 
+            userCard.innerHTML = '<div>' + 
+              '<p class="font-bold">' + user.name + ' ' + adminBadge + ' ' + bannedBadge + '</p>' + 
+              '<p class="text-sm text-gray-600 dark:text-gray-400">ID: ' + user.id + ' | سکه: ' + user.coins.toLocaleString('fa-IR') + ' | سطح: ' + user.level + '</p>' + 
+              '</div>' + 
+              '<button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm">مشاهده</button>'; 
+            userCard.addEventListener('click', () => { 
+              fetchUserDetails(user.id); 
+              resultsDiv.classList.add('hidden'); 
+            }); 
+            resultsList.appendChild(userCard); 
+          }); 
+          resultsDiv.classList.remove('hidden'); 
+        } else { 
+          displayMessage('خطا: ' + data.error, 'error'); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در جستجو', 'error'); 
+        console.error('Search error:', error); 
+      } 
+    }); 
+    // ================================================================= 
+    // بارگذاری جزئیات کاربر (با skip_login_update) 
+    // ================================================================= 
+    async function fetchUserDetails(id) { 
+      const detailsDiv = document.getElementById('userDetails'); 
+      detailsDiv.classList.remove('hidden'); 
+      detailsDiv.scrollIntoView({ behavior: 'smooth' }); 
+      try { 
+        // استفاده از skip_login_update=1 برای عدم آپدیت last_login 
+        const response = await fetch(API_BASE + '/user?id=' + id + '&skip_login_update=1'); 
+        if (!response.ok) { 
+          const errorData = await response.json().catch(() => ({ error: 'خطای نامشخص Worker' })); 
+          displayMessage('جستجو ناموفق: ' + (errorData.error || 'کاربر یافت نشد'), 'error'); 
+          detailsDiv.classList.add('hidden'); 
+          return; 
+        } 
+        const data = await response.json(); 
+        if (data.success) { 
+          const user = data.user; 
+          currentUserData = user; 
+          document.getElementById('userName').textContent = user.name; 
+          document.getElementById('detailId').textContent = user.id; 
+          document.getElementById('detailCreatedAt').textContent = formatTimestamp(user.created_at); 
+          document.getElementById('detailLastLogin').textContent = formatTimestamp(user.last_login); 
+          document.getElementById('detailReferral').textContent = user.referral_code; 
+          const activeEl = document.getElementById('detailActive'); 
+          activeEl.textContent = user.active ? 'فعال' : 'غیرفعال'; 
+          activeEl.className = user.active ? 'text-green-600 font-bold mr-1' : 'text-red-600 font-bold mr-1'; 
+          const adminEl = document.getElementById('detailAdmin'); 
+          adminEl.textContent = user.is_admin ? 'ادمین' : ''; 
+          adminEl.classList.toggle('hidden', !user.is_admin); 
+          const banEl = document.getElementById('detailBan'); 
+          const now = Math.floor(Date.now() / 1000); 
+          if (user.ban_until > now) { 
+            const remainingMinutes = Math.ceil((user.ban_until - now) / 60); 
+            banEl.textContent = 'تا ' + user.ban_date + ' (زمان باقی: ' + remainingMinutes + ' دقیقه)'; 
+            banEl.classList.add('text-red-500'); 
+          } else { 
+            banEl.textContent = 'بن نیست'; 
+            banEl.classList.remove('text-red-500'); 
+          } 
+          document.getElementById('currentName').textContent = user.name; 
+          document.getElementById('editName').value = user.name; 
+          document.getElementById('currentCoins').textContent = (user.coins || 0).toLocaleString('fa-IR'); 
+          document.getElementById('editCoins').value = user.coins; 
+          document.getElementById('currentJob').textContent = user.job; 
+          document.getElementById('editJob').value = user.job; 
+          document.getElementById('currentLevel').textContent = (user.level || 1).toLocaleString('fa-IR'); 
+          document.getElementById('editLevel').value = user.level; 
+          document.getElementById('currentExp').textContent = (user.experience || 0).toLocaleString('fa-IR'); 
+          document.getElementById('editExp').value = user.experience; 
+          document.getElementById('toggleAdminButton').textContent = user.is_admin ? 'حذف وضعیت ادمین' : 'اعطای وضعیت ادمین'; 
+          document.getElementById('toggleAdminButton').setAttribute('data-admin', user.is_admin ? '1' : '0'); 
+          document.getElementById('toggleActiveButton').textContent = user.active ? 'غیرفعال کردن' : 'فعال کردن'; 
+          document.getElementById('toggleActiveButton').setAttribute('data-active', user.active ? '1' : '0'); 
+        } else { 
+          detailsDiv.classList.add('hidden'); 
+          displayMessage('کاربر یافت نشد: ' + id, 'error'); 
+        } 
+      } catch (error) { 
+        detailsDiv.classList.add('hidden'); 
+        displayMessage('خطا در شبکه یا دریافت کاربر', 'error'); 
+        console.error('Error fetching user details:', error); 
+      } 
+    } 
+    // ================================================================= 
+    // توابع Modal 
+    // ================================================================= 
+    /** نمایش تاریخچه چت */ 
+    document.getElementById('viewChatHistoryButton').addEventListener('click', () => { 
+      if (!currentUserData) { 
+        displayMessage('لطفاً ابتدا یک کاربر را جستجو کنید.', 'error'); 
+        return; 
+      } 
+      let chatHTML = ''; 
+      const messages = currentUserData.message_history || []; 
+      if (messages.length === 0) { 
+        chatHTML = '<p class="text-center text-gray-500 dark:text-gray-400">تاریخچه پیامی وجود ندارد.</p>'; 
+      } else { 
+        chatHTML = '<ul class="space-y-3">'; 
+        messages.slice().reverse().forEach(msg => { 
+          chatHTML += '<li class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 shadow-sm">' + 
+            '<p class="text-sm font-mono text-gray-600 dark:text-gray-300">' + formatISO(msg.timestamp) + '</p>' + 
+            '<p class="mt-1">' + msg.message + '</p>' + 
+            '</li>'; 
+        }); 
+        chatHTML += '</ul>'; 
+      } 
+      createModal('تاریخچه چت: ' + currentUserData.name, chatHTML); 
+    }); 
+    /** نمایش تاریخچه نام‌ها */ 
+    document.getElementById('viewNameHistoryButton').addEventListener('click', () => { 
+      if (!currentUserData) { 
+        displayMessage('لطفاً ابتدا یک کاربر را جستجو کنید.', 'error'); 
+        return; 
+      } 
+      let historyHTML = ''; 
+      const names = currentUserData.name_history || []; 
+      if (names.length <= 1) { 
+        historyHTML = '<p class="text-center text-gray-500 dark:text-gray-400">این کاربر هرگز نام خود را تغییر نداده است.</p>'; 
+      } else { 
+        historyHTML = '<ul class="space-y-3">'; 
+        names.slice().reverse().forEach(item => { 
+          historyHTML += '<li class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 shadow-sm flex justify-between items-center">' + 
+            '<span class="font-bold">' + item.name + '</span>' + 
+            '<span class="text-sm font-mono text-gray-600 dark:text-gray-300">' + formatISO(item.timestamp) + '</span>' + 
+            '</li>'; 
+        }); 
+        historyHTML += '</ul>'; 
+      } 
+      createModal('تاریخچه نام‌ها: ' + currentUserData.name, historyHTML); 
+    }); 
+    // ================================================================= 
+    // توابع Modal آمار (کلیک روی کارت‌ها) 
+    // ================================================================= 
+    // نمایش لیست پولدارترین‌ها 
+    document.getElementById('cardTotalCoins').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/top_coins?limit=10'); 
+        const data = await response.json(); 
+        if (data.success) { 
+          let listHTML = '<ul class="space-y-2">'; 
+          data.top_users.forEach((user, index) => { 
+            listHTML += '<li class="flex justify-between p-2 rounded-lg bg-indigo-50 dark:bg-gray-700">' + 
+              '<span>' + (index + 1) + '. ' + user.name + ' (' + user.id + ')</span>' + 
+              '<span class="font-bold text-indigo-700 dark:text-indigo-300">' + user.coins.toLocaleString('fa-IR') + ' سکه</span>' + 
+              '</li>'; 
+          }); 
+          listHTML += '</ul>'; 
+          createModal('🔟 پولدارترین کاربران', listHTML); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در دریافت کاربران برتر', 'error'); 
+      } 
+    }); 
+    // نمایش لیست کاربران بن شده فعال 
+    document.getElementById('cardBannedNow').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/banned_users'); 
+        const data = await response.json(); 
+        if (data.success) { 
+          let listHTML = '<ul class="space-y-2">'; 
+          data.banned_users.forEach(user => { 
+            listHTML += '<li class="p-2 rounded-lg bg-red-50 dark:bg-red-900 border border-red-300">' + 
+              '<span class="font-bold">' + user.name + ' (' + user.id + ')</span>' + 
+              '<br>' + 
+              '<span class="text-sm text-gray-600 dark:text-gray-300">بن تا: ' + formatTimestamp(user.ban_until) + '</span>' + 
+              '</li>'; 
+          }); 
+          if (data.banned_users.length === 0) { 
+            listHTML = '<p class="text-center text-gray-500 dark:text-gray-400">کاربر بن شده فعال وجود ندارد.</p>'; 
+          } else { 
+            listHTML += '</ul>'; 
+          } 
+          createModal('🔨 کاربران بن شده فعال', listHTML); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در دریافت کاربران بن شده', 'error'); 
+      } 
+    }); 
+    // نمایش لیست کاربران جدید امروز 
+    document.getElementById('cardNewToday').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/top_new?limit=20'); 
+        const data = await response.json(); 
+        if (data.success) { 
+          let listHTML = '<ul class="space-y-2">'; 
+          data.new_users.forEach(user => { 
+            listHTML += '<li class="flex justify-between p-2 rounded-lg bg-yellow-50 dark:bg-yellow-900">' + 
+              '<span class="font-bold">' + user.name + ' (' + user.id + ')</span>' + 
+              '<span class="text-sm font-mono text-gray-600 dark:text-gray-300">' + formatTimestamp(user.created_at) + '</span>' + 
+              '</li>'; 
+          }); 
+          if (data.new_users.length === 0) { 
+            listHTML = '<p class="text-center text-gray-500 dark:text-gray-400">کاربر جدیدی ثبت نشده است.</p>'; 
+          } else { 
+            listHTML += '</ul>'; 
+          } 
+          createModal('🆕 جدیدترین کاربران', listHTML); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در دریافت کاربران جدید', 'error'); 
+      } 
+    }); 
+    // نمایش لیست ادمین‌ها (جدید) 
+    document.getElementById('cardTotalAdmins').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/list_admins?limit=50'); 
+        const data = await response.json(); 
+        if (data.success) { 
+          let listHTML = '<ul class="space-y-2">'; 
+          data.admins.forEach((user, index) => { 
+            listHTML += '<li class="p-2 rounded-lg bg-purple-50 dark:bg-purple-900 border border-purple-300 flex justify-between">' + 
+              '<div>' + 
+                '<span class="font-bold">' + (index + 1) + '. ' + user.name + '</span>' + 
+                '<br>' + 
+                '<span class="text-xs font-mono text-gray-600 dark:text-gray-300">' + user.id + '</span>' + 
+              '</div>' + 
+              '<div class="text-right">' + 
+                '<span class="text-sm">سکه: ' + user.coins.toLocaleString('fa-IR') + '</span><br>' + 
+                '<span class="text-xs">سطح: ' + user.level + '</span>' + 
+              '</div>' + 
+              '</li>'; 
+          }); 
+          if (data.admins.length === 0) { 
+            listHTML = '<p class="text-center text-gray-500 dark:text-gray-400">هیچ ادمینی وجود ندارد.</p>'; 
+          } else { 
+            listHTML += '</ul>'; 
+          } 
+          createModal('👑 لیست ادمین‌ها', listHTML); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در دریافت ادمین‌ها', 'error'); 
+      } 
+    }); 
+    // دکمه نمایش چت‌های اخیر (جدید) 
+    document.getElementById('btnShowRecentChats').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/recent_chats?limit=50'); 
+        const data = await response.json(); 
+        if (data.success) { 
+          let listHTML = '<ul class="space-y-3">'; 
+          data.recent_chats.forEach(chat => { 
+            listHTML += '<li class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900 border border-blue-300">' + 
+              '<p class="font-bold text-sm">' + chat.user_name + ' <span class="text-xs font-mono text-gray-500">(' + chat.user_id + ')</span></p>' + 
+              '<p class="text-xs text-gray-600 dark:text-gray-400 mb-1">' + formatISO(chat.timestamp) + '</p>' + 
+              '<p class="text-sm">' + chat.message + '</p>' + 
+              '</li>'; 
+          }); 
+          if (data.recent_chats.length === 0) { 
+            listHTML = '<p class="text-center text-gray-500 dark:text-gray-400">هیچ پیامی یافت نشد.</p>'; 
+          } else { 
+            listHTML += '</ul>'; 
+          } 
+          createModal('💬 چت‌های اخیر (50 تای آخر)', listHTML); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در دریافت چت‌ها', 'error'); 
+      } 
+    }); 
+    // دکمه نمایش لیست کاربران بن شده (جدید) 
+    document.getElementById('btnShowListBanned').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/banned_users'); 
+        const data = await response.json(); 
+        if (data.success) { 
+          let listHTML = '<ul class="space-y-2">'; 
+          data.banned_users.forEach(user => { 
+            listHTML += '<li class="p-3 rounded-lg bg-red-50 dark:bg-red-900 border border-red-300">' + 
+              '<p class="font-bold">' + user.name + ' <span class="text-xs font-mono">(' + user.id + ')</span></p>' + 
+              '<p class="text-sm text-gray-600 dark:text-gray-300">بن تا: ' + formatTimestamp(user.ban_until) + '</p>' + 
+              '</li>'; 
+          }); 
+          if (data.banned_users.length === 0) { 
+            listHTML = '<p class="text-center text-gray-500 dark:text-gray-400">کاربر بن شده‌ای وجود ندارد.</p>'; 
+          } else { 
+            listHTML += '</ul>'; 
+          } 
+          createModal('🔒 لیست کامل کاربران بن شده', listHTML); 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در دریافت کاربران بن شده', 'error'); 
+      } 
+    }); 
+    // دکمه بن دسته‌جمعی (جدید) 
+    document.getElementById('btnShowBulkBan').addEventListener('click', async () => { 
+      try { 
+        const response = await fetch(API_BASE + '/all_users?page=1&limit=100'); 
+        if (!response.ok) { 
+          displayMessage('خطا در دریافت لیست کاربران', 'error'); 
+          return; 
+        } 
+        const data = await response.json(); 
+        if (!data.success) { 
+          displayMessage('خطا: ' + data.error, 'error'); 
+          return; 
+        } 
+        let modalHTML = '<div class="mb-4">' + 
+          '<label class="block font-bold mb-2">مدت زمان بن (دقیقه):</label>' + 
+          '<input id="bulkBanMinutes" type="number" placeholder="مثال: 60" class="w-full p-2 border dark:border-gray-600 dark:bg-gray-700 rounded" />' + 
+          '</div>'; 
+        modalHTML += '<div class="mb-4 max-h-96 overflow-y-auto border dark:border-gray-700 rounded p-2">'; 
+        modalHTML += '<p class="font-bold mb-2">انتخاب کاربران (حداکثر 20 نفر):</p>'; 
+        data.users.forEach(user => { 
+          const activeStatus = user.active ? 'فعال' : 'غیرفعال'; 
+          const adminBadge = user.is_admin ? ' [ادمین]' : ''; 
+          modalHTML += '<div class="flex items-center mb-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">' + 
+            '<input type="checkbox" class="bulk-ban-checkbox ml-2" value="' + user.id + '" />' + 
+            '<label class="flex-grow cursor-pointer">' + 
+              '<span class="font-bold">' + user.name + adminBadge + '</span>' + 
+              '<span class="text-xs text-gray-600 dark:text-gray-400"> (ID: ' + user.id + ', سکه: ' + user.coins + ', ' + activeStatus + ')</span>' + 
+            '</label>' + 
+            '</div>'; 
+        }); 
+        modalHTML += '</div>'; 
+        modalHTML += '<button id="bulkBanExecute" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full mt-2">' + 
+          '<i class="fas fa-hammer ml-2"></i> اعمال بن دسته‌جمعی' + 
+          '</button>'; 
+        createModal('🚫 بن دسته‌جمعی (حداکثر 20 کاربر)', modalHTML); 
+        // Event listener برای دکمه اعمال بن 
+        document.getElementById('bulkBanExecute').addEventListener('click', async () => { 
+          const minutes = parseInt(document.getElementById('bulkBanMinutes').value); 
+          if (!minutes || minutes <= 0) { 
+            displayMessage('مدت زمان بن معتبر وارد کنید.', 'error'); 
+            return; 
+          } 
+          const checkboxes = document.querySelectorAll('.bulk-ban-checkbox:checked'); 
+          if (checkboxes.length === 0) { 
+            displayMessage('حداقل یک کاربر انتخاب کنید.', 'error'); 
+            return; 
+          } 
+          if (checkboxes.length > 20) { 
+            displayMessage('حداکثر 20 کاربر می‌توانید انتخاب کنید.', 'error'); 
+            return; 
+          } 
+          const user_ids = Array.from(checkboxes).map(cb => cb.value); 
+          if (!confirm('آیا مطمئنید که می‌خواهید ' + user_ids.length + ' کاربر را برای ' + minutes + ' دقیقه بن کنید؟')) return; 
+          const result = await runAction('/bulk_ban', 'POST', { user_ids: user_ids, duration_minutes: minutes }); 
+          if (result.success) { 
+            displayMessage(result.data.message); 
+            document.getElementById('modalContainer').classList.add('hidden'); 
+            loadStats(); 
+            loadUserList(currentPage); 
+          } 
+        }); 
+      } catch (error) { 
+        displayMessage('خطا در بارگذاری لیست کاربران', 'error'); 
+        console.error(error); 
+      } 
+    }); 
+    // ================================================================= 
+    // توابع اکشن (عملیات مدیریتی) 
+    // ================================================================= 
+    /** اجرای fetch با مدیریت خطای یکپارچه */ 
+    async function runAction(endpoint, method = 'GET', body = null) { 
+      const options = { method: method, headers: { 'Content-Type': 'application/json' }, }; 
+      if (body) options.body = JSON.stringify(body); 
+      try { 
+        const response = await fetch(API_BASE + endpoint, options); 
+        if (!response.ok) { 
+          const errorData = await response.json().catch(() => ({ error: 'خطای سرور نامشخص (' + response.status + ')' })); 
+          displayMessage('عملیات ناموفق: ' + errorData.error, 'error'); 
+          return { success: false, error: errorData.error }; 
+        } 
+        const data = await response.json(); 
+        if (data.success || data.id) { 
+          return { success: true, data: data }; 
+        } else { 
+          displayMessage('عملیات ناموفق: ' + (data.error || 'خطای API'), 'error'); 
+          return { success: false, error: data.error }; 
+        } 
+      } catch (error) { 
+        displayMessage('خطا در شبکه یا اتصال به API', 'error'); 
+        console.error('Action error:', error); 
+        return { success: false, error: 'Network Error' }; 
+      } 
+    } 
+    /** عملیات آپدیت اصلی (نام, سکه‌ها, شغل) */ 
+    document.getElementById('updateInfoButton').addEventListener('click', async () => { 
+      const id = document.getElementById('detailId').textContent; 
+      const coins = document.getElementById('editCoins').value; 
+      const job = document.getElementById('editJob').value; 
+      const name = document.getElementById('editName').value; 
+      const body = { id: id, coins: parseInt(coins), job: job, name: name }; 
+      const result = await runAction('/update', 'POST', body); 
+      if (result.success) { 
+        displayMessage('اطلاعات کاربر با موفقیت به‌روزرسانی شد.'); 
+        fetchUserDetails(id); 
+        loadStats(); 
+        loadUserList(currentPage); 
+      } 
+    }); 
+    /** عملیات آپدیت سطح و تجربه */ 
+    document.getElementById('updateLevelExpButton').addEventListener('click', async () => { 
+      const id = document.getElementById('detailId').textContent; 
+      const level = document.getElementById('editLevel').value; 
+      const experience = document.getElementById('editExp').value; 
+      const body = { id: id, level: parseInt(level), experience: parseInt(experience) }; 
+      const result = await runAction('/update', 'POST', body); 
+      if (result.success) { 
+        displayMessage('سطح و تجربه با موفقیت به‌روزرسانی شد.'); 
+        fetchUserDetails(id); 
+      } 
+    }); 
+    /** عملیات بن */ 
+    document.getElementById('banButton').addEventListener('click', async () => { 
+      const id = document.getElementById('detailId').textContent; 
+      const minutes = parseInt(document.getElementById('banMinutes').value); 
+      if (!minutes || minutes <= 0) { 
+        displayMessage('لطفاً مدت زمان بن معتبر (دقیقه) را وارد کنید.', 'error'); 
+        return; 
+      } 
+      if (!confirm('آیا مطمئنید که می‌خواهید کاربر ' + id + ' را برای ' + minutes + ' دقیقه بن کنید؟')) return; 
+      const result = await runAction('/ban', 'POST', { id: id, duration_minutes: minutes }); 
+      if (result.success) { 
+        displayMessage('کاربر با موفقیت برای ' + minutes + ' دقیقه بن شد.'); 
+        fetchUserDetails(id); 
+        loadStats(); 
+        loadUserList(currentPage); 
+      } 
+    }); 
+    /** عملیات حذف بن */ 
+    document.getElementById('unbanButton').addEventListener('click', async () => { 
+      const id = document.getElementById('detailId').textContent; 
+      if (!confirm('آیا مطمئنید که می‌خواهید بن کاربر ' + id + ' را حذف کنید؟')) return; 
+      const result = await runAction('/ban', 'POST', { id: id, duration_minutes: 0 }); 
+      if (result.success) { 
+        displayMessage('بن کاربر با موفقیت حذف شد.'); 
+        fetchUserDetails(id); 
+        loadStats(); 
+        loadUserList(currentPage); 
+      } 
+    }); 
+    /** عملیات تغییر وضعیت ادمین */ 
+    document.getElementById('toggleAdminButton').addEventListener('click', async (e) => { 
+      const id = document.getElementById('detailId').textContent; 
+      const currentAdminStatus = e.currentTarget.getAttribute('data-admin') === '1'; 
+      const newAdminStatus = !currentAdminStatus; 
+      if (!confirm('آیا مطمئنید که می‌خواهید وضعیت ادمین بودن کاربر ' + id + ' را به ' + (newAdminStatus ? 'ادمین' : 'کاربر عادی') + ' تغییر دهید؟')) return; 
+      const result = await runAction('/update', 'POST', { id: id, is_admin: newAdminStatus }); 
+      if (result.success) { 
+        displayMessage('وضعیت ادمین با موفقیت به ' + (newAdminStatus ? 'ادمین' : 'کاربر عادی') + ' تغییر یافت.'); 
+        fetchUserDetails(id); 
+        loadStats(); 
+      } 
+    }); 
+    /** عملیات فعال/غیرفعال کردن کاربر */ 
+    document.getElementById('toggleActiveButton').addEventListener('click', async (e) => { 
+      const id = document.getElementById('detailId').textContent; 
+      const currentActiveStatus = e.currentTarget.getAttribute('data-active') === '1'; 
+      const newActiveStatus = !currentActiveStatus; 
+      if (!confirm('آیا مطمئنید که می‌خواهید وضعیت کاربر ' + id + ' را به ' + (newActiveStatus ? 'فعال' : 'غیرفعال') + ' تغییر دهید؟')) return; 
+      const result = await runAction('/update', 'POST', { id: id, active: newActiveStatus }); 
+      if (result.success) { 
+        displayMessage('وضعیت کاربر با موفقیت به ' + (newActiveStatus ? 'فعال' : 'غیرفعال') + ' تغییر یافت.'); 
+        fetchUserDetails(id); 
+        loadUserList(currentPage); 
+        loadStats(); 
+      } 
+    }); 
+    /** عملیات حذف کاربر */ 
+    document.getElementById('deleteButton').addEventListener('click', async () => { 
+      const id = document.getElementById('detailId').textContent; 
+      if (!confirm('هشدار: آیا واقعا می‌خواهید کاربر ' + id + ' را حذف کنید؟ این عمل غیرقابل بازگشت است.')) return; 
+      const result = await runAction('/delete', 'POST', { id: id }); 
+      if (result.success) { 
+        displayMessage('کاربر با موفقیت حذف شد.'); 
+        document.getElementById('userDetails').classList.add('hidden'); 
+        loadUserList(1); 
+        loadStats(); 
+      } 
+    }); 
+    // افزودن گنج جدید 
+    document.getElementById('addTreasureBtn').addEventListener('click', async () => { 
+      const name = document.getElementById('newTreasureName').value.trim(); 
+      const coins = parseInt(document.getElementById('newTreasureCoins').value); 
+      const duration = parseInt(document.getElementById('newTreasureDuration').value); 
+      if (!name || isNaN(coins) || coins < 1 || isNaN(duration) || duration < 1) { 
+        displayMessage('نام, مقدار سکه و زمان (ثانیه) معتبر وارد کنید.', 'error'); 
+        return; 
+      } 
+      const result = await runAction('/add_treasure', 'POST', { name: name, coins_reward: coins, timer_duration_seconds: duration }); 
+      if (result.success) { 
+        displayMessage('گنج جدید اضافه شد.'); 
+        document.getElementById('newTreasureName').value = ''; 
+        document.getElementById('newTreasureCoins').value = ''; 
+        document.getElementById('newTreasureDuration').value = ''; 
+        loadTreasureList(); 
+      } 
+    }); 
+    // ================================================================= 
+    // راه‌اندازی اولیه 
+    // ================================================================= 
+    loadStats(); 
+    loadUserList(1); 
+    loadTreasureList(); 
+  </script> 
+</body> 
+</html> 
