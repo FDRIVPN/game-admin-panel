@@ -66,7 +66,7 @@
         <div id="coins">سکه فعلی: <span id="current">0</span></div>
         <input type="number" id="amount" placeholder="مثلاً ۱۰۰۰۰" min="1000">
         <button onclick="buy()">پرداخت مستقیم</button>
-        <div class="loader" id="loader">در حال انتقال به درگاه بانک...</div>
+        <div class="loader" id="loader">در حال انتقال به درگاه...</div>
     </div>
 
     <script>
@@ -82,22 +82,22 @@
             document.getElementById('loader').style.display = 'block';
 
             const currentUrl = window.location.origin + window.location.pathname;
-            // مبلغ پیش‌پر + بازگشت مستقیم + بدون پیام (auto_pay تقریباً مستقیم میره)
-            const donatUrl = `https://daramet.com/merikoGames?amount=\( {amount}&redirect_url= \){encodeURIComponent(currentUrl)}&auto_pay=1`;
+            // مبلغ پیش‌پر شده + بازگشت اتوماتیک
+            const donatUrl = `https://daramet.com/merikoGames?amount=\( {amount}&redirect_url= \){encodeURIComponent(currentUrl)}`;
 
             window.location.href = donatUrl;
         }
 
-        // پردازش بازگشت موفقیت‌آمیز
+        // پردازش بازگشت موفقیت‌آمیز (بی‌صدا تا آخر)
         const params = new URLSearchParams(window.location.search);
         const status = params.get('status');
         const paidAmount = params.get('amount');
 
         if (status === 'success' && paidAmount) {
             const amount = parseInt(paidAmount);
-            let realAmount = amount * 2;
-            let coins = Math.floor(realAmount / 1000);
-            coins = Math.floor(coins * 1.3);
+            let realAmount = amount * 2;              // دو برابر
+            let coins = Math.floor(realAmount / 1000); // هر ۱۰۰۰ تومن = ۱ سکه
+            coins = Math.floor(coins * 1.3);           // +۳۰% بونوس
 
             const currentCoins = parseInt(localStorage.getItem('coins') || '0');
             const newTotal = currentCoins + coins;
