@@ -55,7 +55,7 @@
             font-weight: bold;
             color: #ffd700;
         }
-        .loader { display: none; margin: 20px; }
+        .loader { display: none; margin: 20px; color: #ffd700; }
     </style>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-wdth-normal.css" rel="stylesheet">
 </head>
@@ -70,7 +70,6 @@
     </div>
 
     <script>
-        // userId فقط برای شناسایی محلی
         const userId = localStorage.getItem('userId') || crypto.randomUUID();
         localStorage.setItem('userId', userId);
 
@@ -83,12 +82,13 @@
             const amount = parseInt(document.getElementById('amount').value);
             if (!amount || amount < 1000) return alert('مبلغ حداقل ۱۰۰۰ تومان');
 
-            // لینک دونیت دارامت با مبلغ دلخواه
-            const donatUrl = `https://daramet.com/merikoGames?amount=${amount}`;
+            const currentUrl = window.location.origin + window.location.pathname;
+            // مبلغ پیش‌پر شده + بازگشت به سایت خودت
+            const donatUrl = `https://daramet.com/merikoGames?amount=\( {amount}&redirect_url= \){encodeURIComponent(currentUrl)}`;
             window.location.href = donatUrl;
         }
 
-        // چک بازگشت از دارامت بعد پرداخت موفق
+        // پردازش بازگشت از دارامت (بی‌صدا)
         const params = new URLSearchParams(window.location.search);
         const status = params.get('status');
         const paidAmount = params.get('amount');
@@ -97,23 +97,25 @@
             document.getElementById('loader').style.display = 'block';
 
             const amount = parseInt(paidAmount);
-
-            // محاسبه سکه: دو برابر مبلغ → تقسیم بر ۱۰۰۰ → +۳۰٪ بونوس
-            let realAmount = amount * 2;
-            let coins = Math.floor(realAmount / 1000);
-            coins = Math.floor(coins * 1.3);
+            let realAmount = amount * 2;              // دو برابر
+            let coins = Math.floor(realAmount / 1000); // هر ۱۰۰۰ تومن = ۱ سکه
+            coins = Math.floor(coins * 1.3);           // +۳۰% بونوس
 
             const currentCoins = parseInt(localStorage.getItem('coins') || '0');
             const newTotal = currentCoins + coins;
 
             localStorage.setItem('coins', newTotal);
-
-            alert(`پرداخت موفق! ${coins} سکه اضافه شد`);
             loadCoins();
 
+            // فقط اینجا پیام موفقیت نشون بده
+            alert(`پرداخت موفق! ${coins} سکه اضافه شد`);
+
             // پاک کردن پارامترها از آدرس
-            history.replaceState({}, '', '/');
+            history.replaceState({}, '', window.location.pathname);
             document.getElementById('loader').style.display = 'none';
+        } else if (status === 'failed') {
+            alert('پرداخت ناموفق بود');
+            history.replaceState({}, '', window.location.pathname);
         }
 
         window.onload = loadCoins;
